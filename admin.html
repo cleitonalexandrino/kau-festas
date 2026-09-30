@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Administrativo | Kau Festas</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#E91E63" />
+
+  <!-- Google Fonts: Pacifico, Poppins, Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Firebase Compat SDKs (App, Firestore, Storage, Auth) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="catalog-defaults.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              pink: '#E91E63',
+              pinkDark: '#D81B60',
+              pinkDeep: '#AD1457',
+              gold: '#D4AF37',
+              goldLight: '#F5E6BE',
+              goldDark: '#C5A059',
+              pastelPink: '#FFF0F3',
+              pastelLight: '#FDF2F5',
+              choco: '#3E2723',
+              chocoDark: '#2D1810',
+              chocoLight: '#5D4037',
+              whatsapp: '#25D366',
+              whatsappHover: '#20BA56'
+            }
+          },
+          fontFamily: {
+            cursive: ['"Pacifico"', 'cursive'],
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Poppins"', 'sans-serif']
+          },
+          boxShadow: {
+            'sweet': '0 10px 30px -5px rgba(233, 30, 99, 0.15)',
+            'sweet-lg': '0 20px 40px -10px rgba(233, 30, 99, 0.25)',
+            'gold-glow': '0 0 20px rgba(212, 175, 55, 0.35)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #3E2723;
+      background-color: #F8F9FA;
+    }
+    .font-pacifico { font-family: 'Pacifico', cursive; }
+    .font-serif-title { font-family: 'Playfair Display', serif; }
+    .bg-candy-pattern {
+      background-color: #FDF2F5;
+      background-image: radial-gradient(#F8BBD0 0.85px, transparent 0.85px), radial-gradient(#F8BBD0 0.85px, #FDF2F5 0.85px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .toast-animate {
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-brand-choco selection:bg-brand-pink selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TELA DE LOGIN (EXIBIDA QUANDO NÃO AUTENTICADO)                           -->
+  <!-- ========================================================================= -->
+  <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-candy-pattern">
+    <div class="relative w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 shadow-sweet-lg border-2 border-brand-gold/30 text-center">
+      
+      <!-- Logo Topo Login -->
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-brand-gold via-brand-pink to-brand-gold shadow-md flex items-center justify-center bg-white">
+        <img src="logo.jpg" alt="Kau Festas" class="w-full h-full object-cover rounded-full" onerror="this.src='logo.jpg'" />
+      </div>
+
+      <h1 class="font-pacifico text-3xl text-brand-pink mb-1">Kau Festas</h1>
+      <p class="text-xs text-brand-chocoLight font-medium mb-6">Painel Administrativo & Gestão do Catálogo</p>
+
+      <!-- Mensagem de Erro -->
+      <div id="login-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-semibold text-red-600 text-left flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="login-error-text">Usuário ou senha incorretos!</span>
+      </div>
+
+      <!-- Formulário de Login -->
+      <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs font-bold text-brand-choco mb-1">Usuário ou E-mail Admin</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-user text-sm"></i>
+            </span>
+            <input 
+              type="text" 
+              id="login-username" 
+              required
+              placeholder="admin ou seu-email@gmail.com" 
+              class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-300 focus:outline-none focus:border-brand-pink text-xs sm:text-sm font-medium bg-slate-50 focus:bg-white transition"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-brand-choco mb-1">Senha de Acesso</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-lock text-sm"></i>
+            </span>
+            <input 
+              type="password" 
+              id="login-password" 
+              required
+              placeholder="Digite sua senha" 
+              class="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-300 focus:outline-none focus:border-brand-pink text-xs sm:text-sm font-medium bg-slate-50 focus:bg-white transition"
+            />
+            <button 
+              type="button" 
+              onclick="togglePasswordVisibility('login-password', this)"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-pink transition"
+              aria-label="Ver senha"
+            >
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs pt-1">
+          <label class="flex items-center gap-2 cursor-pointer text-slate-600">
+            <input type="checkbox" id="login-remember" class="rounded text-brand-pink focus:ring-brand-pink" checked />
+            <span>Manter conectado neste navegador</span>
+          </label>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full py-3.5 bg-gradient-to-r from-brand-pink to-brand-pinkDark hover:from-brand-pinkDark hover:to-brand-pinkDeep text-white rounded-2xl font-bold text-sm shadow-sweet hover:shadow-sweet-lg transition-all duration-300 mt-2 flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Entrar no Painel</span>
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+        <a href="index.html" class="hover:text-brand-pink transition flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Voltar ao Site
+        </a>
+        <span class="text-slate-400">Chave Mestre padrão: <strong>admin</strong> / <strong>kau123</strong></span>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2. DASHBOARD ADMINISTRATIVO COMPLETO                                      -->
+  <!-- ========================================================================= -->
+  <div id="admin-dashboard" class="hidden flex-1 flex flex-col">
+    
+    <!-- Topbar do Admin -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full p-0.5 bg-brand-gold flex items-center justify-center bg-white shadow-sm">
+            <img src="logo.jpg" alt="Kau Festas" class="w-full h-full object-cover rounded-full" onerror="this.src='logo.jpg'" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-pacifico text-lg text-brand-pink leading-none">Kau Festas</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-100 text-brand-pinkDeep">ADMIN v3.0</span>
+            </div>
+            <span class="text-[11px] text-slate-500 font-medium">Gestão Completa de Buffet, Decoração & Brinquedos</span>
+          </div>
+        </div>
+
+        <!-- Indicador de Status Firebase & Ações -->
+        <div class="flex items-center gap-3">
+          
+          <div id="admin-cloud-status" class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span id="admin-cloud-status-text">Verificando Nuvem...</span>
+          </div>
+
+          <a 
+            href="index.html" 
+            target="_blank" 
+            class="px-3 py-1.5 rounded-xl border border-slate-200 hover:border-brand-pink text-xs font-semibold text-slate-700 hover:text-brand-pink transition flex items-center gap-1.5 bg-white"
+          >
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span class="hidden md:inline">Ver Site dos Clientes</span>
+          </a>
+
+          <button 
+            onclick="handleLogout()" 
+            class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" 
+            title="Sair do Painel"
+          >
+            <i class="fa-solid fa-power-off text-base"></i>
+          </button>
+
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Sub-Header com Abas de Gestão -->
+    <div class="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-3">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+        
+        <!-- Abas Principais -->
+        <div class="flex items-center gap-1 sm:gap-2">
+          <button 
+            id="tab-btn-products" 
+            onclick="switchAdminTab('products')" 
+            class="admin-tab-btn active px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-pink text-white shadow-sm flex items-center gap-2 transition"
+          >
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Produtos & Serviços</span>
+            <span id="badge-total-items" class="px-1.5 py-0.2 bg-white/20 rounded-full text-[10px]">0</span>
+          </button>
+
+          <button 
+            id="tab-btn-texts" 
+            onclick="switchAdminTab('texts')" 
+            class="admin-tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-brand-choco hover:bg-slate-100 flex items-center gap-2 transition"
+          >
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>Textos do Site</span>
+          </button>
+
+          <button 
+            id="tab-btn-cloud" 
+            onclick="switchAdminTab('cloud')" 
+            class="admin-tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-brand-choco hover:bg-slate-100 flex items-center gap-2 transition"
+          >
+            <i class="fa-solid fa-cloud"></i>
+            <span>Nuvem & Firebase</span>
+          </button>
+
+          <button 
+            id="tab-btn-backup" 
+            onclick="switchAdminTab('backup')" 
+            class="admin-tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-brand-choco hover:bg-slate-100 flex items-center gap-2 transition"
+          >
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Backup & Senha</span>
+          </button>
+        </div>
+
+        <!-- Botão Novo Produto -->
+        <button 
+          onclick="openProductModal()" 
+          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm transition"
+        >
+          <i class="fa-solid fa-plus"></i>
+          <span>Novo Item</span>
+        </button>
+
+      </div>
+    </div>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      
+      <!-- =================================================================== -->
+      <!-- ABA 1: PRODUTOS & SERVIÇOS                                          -->
+      <!-- =================================================================== -->
+      <div id="admin-view-products" class="admin-view-content space-y-6">
+        
+        <!-- Cards Resumo / Estatísticas Rápidas -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-pink-100 text-brand-pink flex items-center justify-center text-xl">
+              🧁
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold text-slate-500 uppercase">Doces</span>
+              <h4 id="count-doces" class="font-bold text-lg text-brand-choco">0</h4>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl">
+              🥐
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold text-slate-500 uppercase">Salgados & Tortas</span>
+              <h4 id="count-salgados" class="font-bold text-lg text-brand-choco">0</h4>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center text-xl">
+              🎈
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold text-slate-500 uppercase">Decorações & Kits</span>
+              <h4 id="count-decoracoes" class="font-bold text-lg text-brand-choco">0</h4>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl">
+              🎪
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold text-slate-500 uppercase">Brinquedos</span>
+              <h4 id="count-brinquedos" class="font-bold text-lg text-brand-choco">0</h4>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Filtros e Barra de Busca -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+          
+          <!-- Filtro de Categorias -->
+          <div class="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
+            <button onclick="filterAdminProducts('all')" id="filter-btn-all" class="admin-cat-filter px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-choco text-white transition">
+              Todos (<span id="filter-count-all">0</span>)
+            </button>
+            <button onclick="filterAdminProducts('doces')" id="filter-btn-doces" class="admin-cat-filter px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              🧁 Doces (<span id="filter-count-doces">0</span>)
+            </button>
+            <button onclick="filterAdminProducts('salgados')" id="filter-btn-salgados" class="admin-cat-filter px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              🥐 Salgados & Tortas (<span id="filter-count-salgados">0</span>)
+            </button>
+            <button onclick="filterAdminProducts('decoracoes')" id="filter-btn-decoracoes" class="admin-cat-filter px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              🎈 Decorações (<span id="filter-count-decoracoes">0</span>)
+            </button>
+            <button onclick="filterAdminProducts('brinquedos')" id="filter-btn-brinquedos" class="admin-cat-filter px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              🎪 Brinquedos (<span id="filter-count-brinquedos">0</span>)
+            </button>
+          </div>
+
+          <!-- Busca de Produtos -->
+          <div class="relative w-full md:w-72">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+              <i class="fa-solid fa-magnifying-glass text-xs"></i>
+            </span>
+            <input 
+              type="text" 
+              id="admin-search-input" 
+              oninput="renderAdminProductList()" 
+              placeholder="Buscar por nome ou preço..." 
+              class="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink bg-slate-50 focus:bg-white" 
+            />
+          </div>
+
+        </div>
+
+        <!-- Grid de Itens no Admin -->
+        <div id="admin-product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Renderizado via JavaScript -->
+        </div>
+
+        <!-- Estado Vazio -->
+        <div id="admin-empty-state" class="hidden text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm">
+          <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-3"></i>
+          <h4 class="font-bold text-base text-brand-choco">Nenhum produto encontrado</h4>
+          <p class="text-xs text-slate-500 mt-1">Tente mudar o filtro de categoria ou termo de busca.</p>
+        </div>
+
+      </div>
+
+
+      <!-- =================================================================== -->
+      <!-- ABA 2: EDITOR DE TEXTOS DO SITE                                     -->
+      <!-- =================================================================== -->
+      <div id="admin-view-texts" class="admin-view-content hidden space-y-6">
+        
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-4xl mx-auto">
+          
+          <div class="flex items-center gap-3 pb-6 border-b border-slate-200 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-pink-100 text-brand-pink flex items-center justify-center text-xl">
+              <i class="fa-solid fa-pen-nib"></i>
+            </div>
+            <div>
+              <h3 class="font-serif-title font-bold text-2xl text-brand-choco">Editor de Textos & Contato</h3>
+              <p class="text-xs text-slate-500">Altere os títulos, slogans, avisos e contatos exibidos na página principal.</p>
+            </div>
+          </div>
+
+          <form onsubmit="handleSaveSiteTexts(event)" class="space-y-5">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-brand-choco mb-1">Telefone de Exibição (Header & Rodapé)</label>
+                <input 
+                  type="text" 
+                  id="cfg-phone-display" 
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:border-brand-pink" 
+                  required 
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-brand-choco mb-1">WhatsApp (Número Completo com DDD)</label>
+                <input 
+                  type="text" 
+                  id="cfg-phone-raw" 
+                  placeholder="5511969798162" 
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:border-brand-pink" 
+                  required 
+                />
+                <span class="text-[10px] text-slate-400">Ex: 5511969798162 (somente números com código 55 do Brasil)</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-brand-choco mb-1">Título Principal (Hero H1)</label>
+              <input 
+                type="text" 
+                id="cfg-headline" 
+                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:border-brand-pink" 
+                required 
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-brand-choco mb-1">Texto de Apoio / Subtítulo (Hero)</label>
+              <textarea 
+                id="cfg-subtitle" 
+                rows="3" 
+                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:border-brand-pink" 
+                required
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-brand-choco mb-1">Barra Superior de Aviso (Top Bar)</label>
+              <input 
+                type="text" 
+                id="cfg-topbar" 
+                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:border-brand-pink" 
+                required 
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-brand-choco mb-1">Texto de Garantia & Reserva (Rodapé e Card)</label>
+              <input 
+                type="text" 
+                id="cfg-guarantee" 
+                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:border-brand-pink" 
+                required 
+              />
+            </div>
+
+            <div class="pt-4 flex justify-end">
+              <button 
+                type="submit" 
+                class="px-6 py-3 bg-brand-pink hover:bg-brand-pinkDark text-white font-bold rounded-2xl shadow-sweet text-xs sm:text-sm flex items-center gap-2 transition"
+              >
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Salvar Textos do Site</span>
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================================== -->
+      <!-- ABA 3: NUVEM & FIREBASE (GUIA + CONFIGURAÇÃO)                       -->
+      <!-- =================================================================== -->
+      <div id="admin-view-cloud" class="admin-view-content hidden space-y-6">
+        
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-4xl mx-auto space-y-8">
+          
+          <!-- Cabeçalho -->
+          <div class="flex items-center gap-3 pb-6 border-b border-slate-200">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-cloud"></i>
+            </div>
+            <div>
+              <h3 class="font-serif-title font-bold text-2xl text-brand-choco">Conexão em Nuvem (Firebase)</h3>
+              <p class="text-xs text-slate-500">Conecte seu Firestore e Storage para sincronizar produtos com todos os clientes da internet.</p>
+            </div>
+          </div>
+
+          <!-- Status Atual -->
+          <div id="firebase-status-box" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div id="firebase-status-indicator" class="w-4 h-4 rounded-full bg-slate-400"></div>
+              <div>
+                <span class="text-xs font-bold text-brand-choco block" id="firebase-status-title">Status: Não Configurado</span>
+                <span class="text-[11px] text-slate-500" id="firebase-status-desc">O catálogo está operando localmente neste navegador.</span>
+              </div>
+            </div>
+
+            <button 
+              onclick="syncLocalToFirebase()" 
+              class="px-4 py-2 bg-brand-pink hover:bg-brand-pinkDark text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2"
+            >
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>Sincronizar Produtos com a Nuvem Agora</span>
+            </button>
+          </div>
+
+          <!-- Formulário de Chaves Firebase -->
+          <div>
+            <h4 class="font-bold text-sm text-brand-choco mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-key text-brand-gold"></i>
+              <span>Credenciais do Projeto Firebase (Web App Config)</span>
+            </h4>
+
+            <form onsubmit="handleSaveFirebaseConfig(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">apiKey</label>
+                  <input type="text" id="fb-apiKey" placeholder="AIzaSy..." class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">authDomain</label>
+                  <input type="text" id="fb-authDomain" placeholder="seu-projeto.firebaseapp.com" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">projectId</label>
+                  <input type="text" id="fb-projectId" placeholder="seu-projeto-id" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">storageBucket</label>
+                  <input type="text" id="fb-storageBucket" placeholder="seu-projeto.appspot.com" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">messagingSenderId</label>
+                  <input type="text" id="fb-messagingSenderId" placeholder="1234567890" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">appId</label>
+                  <input type="text" id="fb-appId" placeholder="1:1234567890:web:abcdef" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono" />
+                </div>
+
+              </div>
+
+              <div class="flex items-center justify-between pt-3">
+                <button 
+                  type="button" 
+                  onclick="clearFirebaseConfig()" 
+                  class="text-xs text-rose-600 hover:underline font-semibold"
+                >
+                  Desconectar / Limpar Chaves
+                </button>
+
+                <button 
+                  type="submit" 
+                  class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2"
+                >
+                  <i class="fa-solid fa-check"></i>
+                  <span>Testar & Salvar Configurações</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Guia Passo a Passo Ilustrado -->
+          <div class="pt-6 border-t border-slate-200">
+            <h4 class="font-bold text-sm text-brand-choco mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-circle-question text-brand-pink"></i>
+              <span>Guia Passo a Passo: Como Criar seu Firebase Gratuito em 5 Minutos</span>
+            </h4>
+
+            <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+              
+              <div class="p-4 rounded-2xl bg-pink-50/50 border border-pink-100 flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full bg-brand-pink text-white flex items-center justify-center font-bold flex-shrink-0">1</span>
+                <div>
+                  <strong class="text-brand-choco block mb-0.5">Criar o Projeto no Firebase Console</strong>
+                  Acesse <a href="https://console.firebase.google.com/" target="_blank" class="text-brand-pink underline font-bold">console.firebase.google.com</a> com sua conta Google e clique em <em>"Adicionar Projeto"</em>. Nomeie como <strong>Kau Festas</strong> (desative o Google Analytics se preferir rapidez).
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-100 flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold flex-shrink-0">2</span>
+                <div>
+                  <strong class="text-brand-choco block mb-0.5">Ativar o Firestore Database</strong>
+                  No menu lateral esquerdo, clique em <strong>Criação > Firestore Database</strong>. Clique em <em>"Criar banco de dados"</em>, escolha o local (ex: `southamerica-east1` em SP ou `us-central1`), selecione <em>"Modo de teste"</em> e confirme.
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-purple-50/50 border border-purple-100 flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold flex-shrink-0">3</span>
+                <div>
+                  <strong class="text-brand-choco block mb-0.5">Ativar o Storage (Para Upload de Fotos)</strong>
+                  No menu lateral esquerdo, clique em <strong>Criação > Storage</strong>. Clique em <em>"Primeiros passos"</em>, mantenha modo de teste e confirme.
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0">4</span>
+                <div>
+                  <strong class="text-brand-choco block mb-0.5">Registrar o Aplicativo Web e Copiar as Chaves</strong>
+                  Na página inicial do seu projeto, clique no ícone <strong>&lt;/&gt; (Web)</strong>. Dê o nome de <em>Kau Festas Web</em>. O Firebase exibirá um código com o objeto `firebaseConfig` contendo `apiKey`, `projectId`, etc. Basta copiar cada valor e colar nos campos acima!
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================================== -->
+      <!-- ABA 4: BACKUP E RESTAURAÇÃO                                         -->
+      <!-- =================================================================== -->
+      <div id="admin-view-backup" class="admin-view-content hidden space-y-6">
+        
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-6">
+          
+          <div class="flex items-center gap-3 pb-6 border-b border-slate-200">
+            <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <div>
+              <h3 class="font-serif-title font-bold text-2xl text-brand-choco">Segurança e Backup do Catálogo</h3>
+              <p class="text-xs text-slate-500">Exporte ou importe todos os dados em arquivo seguro JSON.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <h4 class="font-bold text-sm text-brand-choco mb-1">Exportar Backup Completo</h4>
+                <p class="text-xs text-slate-500 mb-4">Gera um arquivo .json com todos os produtos, fotos, brinquedos e configurações para guardar no seu computador ou celular.</p>
+              </div>
+              <button 
+                onclick="exportBackupJSON()" 
+                class="w-full py-2.5 bg-brand-choco hover:bg-black text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition"
+              >
+                <i class="fa-solid fa-download"></i>
+                <span>Baixar Backup (JSON)</span>
+              </button>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <h4 class="font-bold text-sm text-brand-choco mb-1">Restaurar de um Backup</h4>
+                <p class="text-xs text-slate-500 mb-4">Carregue um arquivo .json previamente salvo para restaurar instantaneamente produtos e configurações.</p>
+              </div>
+              <label class="w-full py-2.5 bg-white border border-slate-300 hover:border-brand-pink text-slate-700 hover:text-brand-pink font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+                <i class="fa-solid fa-upload"></i>
+                <span>Importar Arquivo JSON</span>
+                <input type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+              </label>
+            </div>
+
+          </div>
+
+          <!-- Alteração de Senha / Credenciais -->
+          <div class="pt-6 border-t border-slate-200">
+            <h4 class="font-bold text-sm text-brand-choco mb-1 flex items-center gap-2">
+              <i class="fa-solid fa-key text-brand-gold"></i>
+              <span>Credenciais de Acesso ao Painel Admin</span>
+            </h4>
+            <p class="text-xs text-slate-500 mb-4">Personalize o usuário e a senha master utilizados para fazer login neste painel administrativo.</p>
+
+            <form onsubmit="handleUpdateAdminCreds(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Usuário</label>
+                  <input type="text" id="admin-change-user" required class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-medium" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Nova Senha</label>
+                  <input type="text" id="admin-change-pass" required placeholder="Digite a nova senha" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-medium" />
+                </div>
+              </div>
+              <div class="flex items-center justify-end">
+                <button type="submit" class="px-5 py-2.5 bg-brand-pink hover:bg-brand-pinkDark text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition">
+                  <i class="fa-solid fa-lock"></i>
+                  <span>Salvar Nova Senha</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h5 class="text-xs font-bold text-slate-700">Restaurar Padrões de Fábrica</h5>
+              <p class="text-[11px] text-slate-500">Restaura os 22 produtos padrão e configurações iniciais da Kau Festas.</p>
+            </div>
+            <button 
+              onclick="resetToFactoryDefaults()" 
+              class="px-4 py-2 border border-rose-300 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold transition flex items-center gap-2"
+            >
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Restaurar Catálogo Oficial</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ADICIONAR / EDITAR PRODUTO                                         -->
+  <!-- ========================================================================= -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="relative w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 my-8">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-pink-100 text-brand-pink flex items-center justify-center text-lg">
+            <i class="fa-solid fa-box"></i>
+          </div>
+          <div>
+            <h3 id="modal-product-title" class="font-serif-title font-bold text-xl text-brand-choco">Adicionar Produto</h3>
+            <p class="text-xs text-slate-500">Preencha os dados para atualizar o site e a nuvem</p>
+          </div>
+        </div>
+        <button onclick="closeProductModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveProduct(event)" class="space-y-4">
+        <input type="hidden" id="modal-prod-id" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <div>
+            <label class="block text-xs font-bold text-brand-choco mb-1">Nome do Produto / Serviço</label>
+            <input 
+              type="text" 
+              id="modal-prod-name" 
+              required 
+              placeholder="Ex: Cama Elástica, Bolo Chocolatudo..." 
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink font-medium" 
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-brand-choco mb-1">Categoria</label>
+            <select 
+              id="modal-prod-category" 
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink font-medium bg-white"
+            >
+              <option value="doces">🧁 Doces</option>
+              <option value="salgados">🥐 Salgados & Tortas</option>
+              <option value="decoracoes">🎈 Decorações & Kits Festa</option>
+              <option value="brinquedos">🎪 Locação de Brinquedos</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          
+          <div>
+            <label class="block text-xs font-bold text-brand-choco mb-1">Preço / Orçamento</label>
+            <input 
+              type="text" 
+              id="modal-prod-price" 
+              required 
+              placeholder="Ex: R$ 400,00 ou A partir de R$ 90/kg" 
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink font-medium" 
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-brand-choco mb-1">Tamanho / Especificação</label>
+            <input 
+              type="text" 
+              id="modal-prod-sizes" 
+              placeholder="Ex: 1m diâmetro ou 2 kg de bolo" 
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink font-medium" 
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-brand-choco mb-1">Selo / Destaque</label>
+            <select 
+              id="modal-prod-badge" 
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink font-medium bg-white"
+            >
+              <option value="none">Nenhum</option>
+              <option value="Mais Vendido">Mais Vendido</option>
+              <option value="Destaque">Destaque</option>
+              <option value="Especialidade">Especialidade</option>
+              <option value="Super Promoção">Super Promoção</option>
+              <option value="Novidade">Novidade</option>
+              <option value="Mais Pedido">Mais Pedido</option>
+              <option value="Baby">Baby</option>
+              <option value="Espaço Kids">Espaço Kids</option>
+              <option value="Gourmet">Gourmet</option>
+              <option value="Personalizado">Personalizado</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Descrição -->
+        <div>
+          <label class="block text-xs font-bold text-brand-choco mb-1">Descrição e Detalhes</label>
+          <textarea 
+            id="modal-prod-desc" 
+            rows="3" 
+            required 
+            placeholder="Descreva sabores, itens inclusos, dimensões e diferenciais..." 
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink font-medium"
+          ></textarea>
+        </div>
+
+        <!-- Imagem do Produto: Upload ou URL -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <label class="block text-xs font-bold text-brand-choco">Foto do Produto</label>
+          
+          <div class="flex flex-col sm:flex-row items-center gap-4">
+            
+            <!-- Preview da Imagem -->
+            <div class="w-24 h-24 rounded-2xl bg-white border border-slate-300 overflow-hidden flex-shrink-0 shadow-sm flex items-center justify-center">
+              <img id="modal-img-preview" src="logo.jpg" alt="Preview" class="w-full h-full object-cover" onerror="this.src='logo.jpg'" />
+            </div>
+
+            <!-- Controles de Imagem -->
+            <div class="flex-1 space-y-2 w-full">
+              
+              <div class="flex items-center gap-2">
+                <label class="px-4 py-2 bg-brand-pink hover:bg-brand-pinkDark text-white text-xs font-bold rounded-xl cursor-pointer shadow-sm transition flex items-center gap-1.5">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span>Enviar Foto do Computador / Celular</span>
+                  <input type="file" id="modal-file-upload" accept="image/*" onchange="handleImageFileSelect(event)" class="hidden" />
+                </label>
+                <span id="upload-status-text" class="text-[11px] text-slate-500 font-medium"></span>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Ou digite o nome / link da foto:</label>
+                <input 
+                  type="text" 
+                  id="modal-prod-image-url" 
+                  oninput="updateImagePreview(this.value)" 
+                  placeholder="ex: brinquedo_pula_pula.jpg ou https://..." 
+                  class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 font-mono" 
+                />
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Galeria de Imagens Rápidas do Sistema -->
+          <div class="pt-2">
+            <span class="text-[11px] font-bold text-slate-600 block mb-1.5">Fotos prontas do catálogo (clique para aplicar):</span>
+            <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1 bg-white rounded-xl border border-slate-200">
+              <button type="button" onclick="selectQuickImage('brinquedo_pula_pula.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎪 Pula-Pula</button>
+              <button type="button" onclick="selectQuickImage('brinquedo_piscina_bolinhas.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎪 Piscina Bolinhas</button>
+              <button type="button" onclick="selectQuickImage('brinquedo_cavalinho.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎪 Cavalinho</button>
+              <button type="button" onclick="selectQuickImage('brinquedo_jabuti.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎪 Jabuti</button>
+              <button type="button" onclick="selectQuickImage('brinquedo_combo.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎪 Combo Brinquedos</button>
+              <button type="button" onclick="selectQuickImage('kit_festa_p.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Kit Festa P</button>
+              <button type="button" onclick="selectQuickImage('kit_festa_m.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Kit Festa M</button>
+              <button type="button" onclick="selectQuickImage('kit_festa_g.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Kit Festa G</button>
+              <button type="button" onclick="selectQuickImage('decor_kit_p.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Decor P</button>
+              <button type="button" onclick="selectQuickImage('decor_kit_m.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Decor M</button>
+              <button type="button" onclick="selectQuickImage('decor_kit_g.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Decor G</button>
+              <button type="button" onclick="selectQuickImage('doce_mini_tortinhas.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Minitortinhas</button>
+              <button type="button" onclick="selectQuickImage('doce_cascone.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Cascone</button>
+              <button type="button" onclick="selectQuickImage('doce_bolo_chocolatudo.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Bolo Chocolatudo</button>
+              <button type="button" onclick="selectQuickImage('doce_caixinha_premium.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Caixa Premium</button>
+              <button type="button" onclick="selectQuickImage('cardapio.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🥐 Salgados Banner</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="modal-prod-active" class="rounded text-brand-pink focus:ring-brand-pink" checked />
+          <label for="modal-prod-active" class="text-xs font-bold text-brand-choco cursor-pointer">
+            Produto Visível no Catálogo do Site
+          </label>
+        </div>
+
+        <!-- Botões de Ação do Modal -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+          <button 
+            type="button" 
+            onclick="closeProductModal()" 
+            class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 transition"
+          >
+            Cancelar
+          </button>
+          
+          <button 
+            type="submit" 
+            class="px-6 py-2.5 bg-brand-pink hover:bg-brand-pinkDark text-white rounded-xl text-xs font-bold shadow-sweet transition flex items-center gap-2"
+          >
+            <i class="fa-solid fa-check"></i>
+            <span>Salvar Produto</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- CONTAINER DE TOASTS                                                       -->
+  <!-- ========================================================================= -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+
+  <!-- ========================================================================= -->
+  <!-- LOGICA DO PAINEL ADMINISTRATIVO                                           -->
+  <!-- ========================================================================= -->
+  <script>
+    let currentAdminCat = 'all';
+    let cachedProducts = [];
+
+    // -------------------------------------------------------------------------
+    // 1. AUTENTICAÇÃO E SESSÃO
+    // -------------------------------------------------------------------------
+    function checkAuth() {
+      const isLogged = sessionStorage.getItem('kau_logged_in') === 'true' || localStorage.getItem('kau_logged_in') === 'true';
+      if (isLogged) {
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+        initDashboard();
+      } else {
+        document.getElementById('login-view').classList.remove('hidden');
+        document.getElementById('admin-dashboard').classList.add('hidden');
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const userVal = document.getElementById('login-username').value.trim();
+      const passVal = document.getElementById('login-password').value.trim();
+      const remember = document.getElementById('login-remember').checked;
+
+      const authRes = await window.KauFirebase.login(userVal, passVal);
+
+      if (authRes.success) {
+        if (remember) {
+          localStorage.setItem('kau_logged_in', 'true');
+        } else {
+          sessionStorage.setItem('kau_logged_in', 'true');
+        }
+        document.getElementById('login-error').classList.add('hidden');
+        checkAuth();
+        showToast('Login realizado com sucesso! Bem-vinda(o)!', 'success');
+      } else {
+        const err = document.getElementById('login-error');
+        err.classList.remove('hidden');
+        document.getElementById('login-error-text').textContent = 'Usuário ou senha incorretos!';
+      }
+    }
+
+    async function handleLogout() {
+      await window.KauFirebase.logout();
+      checkAuth();
+      showToast('Sessão encerrada com segurança.', 'info');
+    }
+
+    function togglePasswordVisibility(fieldId, btn) {
+      const input = document.getElementById(fieldId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+      } else {
+        input.type = 'password';
+        btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. INICIALIZAÇÃO DO DASHBOARD
+    // -------------------------------------------------------------------------
+    async function initDashboard() {
+      await refreshProductsData();
+      await populateSettingsForm();
+      updateCloudStatusUI();
+      populateFirebaseConfigForm();
+      populateAdminCredsForm();
+    }
+
+    function populateAdminCredsForm() {
+      if (window.KauFirebase && typeof window.KauFirebase.getCredentials === 'function') {
+        const creds = window.KauFirebase.getCredentials();
+        const userEl = document.getElementById('admin-change-user');
+        const passEl = document.getElementById('admin-change-pass');
+        if (userEl) userEl.value = creds.user || 'admin';
+        if (passEl) passEl.value = creds.pass || 'kau123';
+      }
+    }
+
+    function handleUpdateAdminCreds(e) {
+      e.preventDefault();
+      const u = document.getElementById('admin-change-user').value.trim();
+      const p = document.getElementById('admin-change-pass').value.trim();
+      if (!u || !p) {
+        showToast('Preencha o usuário e a nova senha.', 'error');
+        return;
+      }
+      if (window.KauFirebase && typeof window.KauFirebase.updateCredentials === 'function') {
+        window.KauFirebase.updateCredentials(u, p);
+        showToast('Credenciais atualizadas com sucesso!', 'success');
+      }
+    }
+
+    async function refreshProductsData() {
+      const defaults = window.KAU_DEFAULT_PRODUCTS || [];
+      cachedProducts = await window.KauFirebase.fetchProducts(defaults);
+      if (!cachedProducts || !cachedProducts.length) {
+        cachedProducts = defaults;
+      }
+      // Migração automática para Mini Tortinhas -> categoria salgados e fotos dos Kits de Decoração
+      let changed = false;
+      cachedProducts.forEach(p => {
+        if (p.id === 'doce-tortinhas' && p.category === 'doces') {
+          p.category = 'salgados';
+          changed = true;
+        }
+        if (p.id === 'decor-kit-p' && p.image !== 'decor_kit_p.jpg') {
+          p.image = 'decor_kit_p.jpg';
+          changed = true;
+        }
+        if (p.id === 'decor-kit-m' && p.image !== 'decor_kit_m.jpg') {
+          p.image = 'decor_kit_m.jpg';
+          changed = true;
+        }
+      });
+      if (changed) {
+        try {
+          localStorage.setItem('kau_products', JSON.stringify(cachedProducts));
+          if (window.KauFirebase && typeof window.KauFirebase.saveProducts === 'function') {
+            window.KauFirebase.saveProducts(cachedProducts).catch(() => {});
+          }
+        } catch (e) {}
+      }
+
+      updateCounts();
+      renderAdminProductList();
+    }
+
+    function updateCounts() {
+      const prods = cachedProducts || [];
+      const doces = prods.filter(p => p.category === 'doces').length;
+      const salgados = prods.filter(p => p.category === 'salgados').length;
+      const decor = prods.filter(p => p.category === 'decoracoes').length;
+      const brinquedos = prods.filter(p => p.category === 'brinquedos').length;
+
+      document.getElementById('count-doces').textContent = doces;
+      document.getElementById('count-salgados').textContent = salgados;
+      document.getElementById('count-decoracoes').textContent = decor;
+      document.getElementById('count-brinquedos').textContent = brinquedos;
+      document.getElementById('badge-total-items').textContent = prods.length;
+
+      document.getElementById('filter-count-all').textContent = prods.length;
+      document.getElementById('filter-count-doces').textContent = doces;
+      document.getElementById('filter-count-salgados').textContent = salgados;
+      document.getElementById('filter-count-decoracoes').textContent = decor;
+      document.getElementById('filter-count-brinquedos').textContent = brinquedos;
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. NAVEGAÇÃO ENTRE ABAS DO ADMIN
+    // -------------------------------------------------------------------------
+    function switchAdminTab(tabName) {
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-brand-pink', 'text-white', 'shadow-sm');
+        btn.classList.add('text-brand-choco');
+      });
+      document.querySelectorAll('.admin-view-content').forEach(view => view.classList.add('hidden'));
+
+      const activeBtn = document.getElementById('tab-btn-' + tabName);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-brand-pink', 'text-white', 'shadow-sm');
+        activeBtn.classList.remove('text-brand-choco');
+      }
+
+      const activeView = document.getElementById('admin-view-' + tabName);
+      if (activeView) {
+        activeView.classList.remove('hidden');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. RENDERIZAÇÃO E FILTRO DE PRODUTOS
+    // -------------------------------------------------------------------------
+    function filterAdminProducts(cat) {
+      currentAdminCat = cat;
+      document.querySelectorAll('.admin-cat-filter').forEach(btn => {
+        btn.classList.remove('bg-brand-choco', 'text-white');
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+      });
+      const activeBtn = document.getElementById('filter-btn-' + cat);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-brand-choco', 'text-white');
+        activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+      }
+      renderAdminProductList();
+    }
+
+    function renderAdminProductList() {
+      const searchVal = document.getElementById('admin-search-input').value.toLowerCase().trim();
+      const grid = document.getElementById('admin-product-grid');
+      const emptyState = document.getElementById('admin-empty-state');
+
+      let filtered = cachedProducts || [];
+
+      if (currentAdminCat !== 'all') {
+        filtered = filtered.filter(p => p.category === currentAdminCat);
+      }
+
+      if (searchVal) {
+        filtered = filtered.filter(p => 
+          (p.name && p.name.toLowerCase().includes(searchVal)) || 
+          (p.description && p.description.toLowerCase().includes(searchVal)) ||
+          (p.price && p.price.toLowerCase().includes(searchVal))
+        );
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      grid.innerHTML = filtered.map(prod => {
+        const catBadges = {
+          doces: '<span class="bg-pink-100 text-brand-pinkDeep text-[10px] font-bold px-2 py-0.5 rounded-full">🧁 Doce</span>',
+          salgados: '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">🥐 Salgado & Torta</span>',
+          decoracoes: '<span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-full">🎈 Decoração & Kits</span>',
+          brinquedos: '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">🎪 Brinquedo</span>'
+        };
+
+        const catBadge = catBadges[prod.category] || '<span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Geral</span>';
+
+        const statusBadge = prod.active !== false
+          ? '<span class="text-emerald-600 text-[11px] font-semibold flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Visível no Site</span>'
+          : '<span class="text-slate-400 text-[11px] font-semibold flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-300 inline-block"></span> Oculto</span>';
+
+        return `
+          <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+            <div>
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
+                  <img src="${prod.image || 'logo.jpg'}" alt="${prod.name}" class="w-full h-full object-cover" onerror="this.src='logo.jpg'" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    ${catBadge}
+                    ${prod.badge && prod.badge !== 'none' ? `<span class="bg-brand-gold/20 text-brand-goldDark text-[10px] font-bold px-2 py-0.5 rounded-full">${prod.badge}</span>` : ''}
+                  </div>
+                  <h4 class="font-bold text-sm text-brand-choco truncate" title="${prod.name}">${prod.name}</h4>
+                  <span class="text-xs text-brand-pink font-semibold">${prod.price}</span>
+                </div>
+              </div>
+
+              ${prod.sizes ? `<p class="text-[11px] text-brand-chocoLight font-medium mb-1"><i class="fa-solid fa-circle-info text-brand-pink mr-1"></i>${prod.sizes}</p>` : ''}
+              <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">${prod.description}</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+              ${statusBadge}
+              
+              <div class="flex items-center gap-1">
+                <!-- Toggle Visibilidade -->
+                <button 
+                  onclick="toggleProductActive('${prod.id}')" 
+                  class="p-2 rounded-xl text-slate-400 hover:text-brand-pink hover:bg-pink-50 transition" 
+                  title="${prod.active !== false ? 'Ocultar do site' : 'Exibir no site'}"
+                >
+                  <i class="fa-solid ${prod.active !== false ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                </button>
+
+                <!-- Editar -->
+                <button 
+                  onclick="editProduct('${prod.id}')" 
+                  class="p-2 rounded-xl text-slate-400 hover:text-brand-choco hover:bg-slate-100 transition" 
+                  title="Editar produto"
+                >
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+
+                <!-- Excluir -->
+                <button 
+                  onclick="deleteProduct('${prod.id}')" 
+                  class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" 
+                  title="Excluir produto"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. CRUD DE PRODUTOS (ADICIONAR, EDITAR, SALVAR, EXCLUIR)
+    // -------------------------------------------------------------------------
+    function openProductModal(isEdit = false) {
+      const modal = document.getElementById('product-modal');
+      const title = document.getElementById('modal-product-title');
+      
+      if (!isEdit) {
+        title.textContent = 'Adicionar Novo Item';
+        document.getElementById('modal-prod-id').value = '';
+        document.getElementById('modal-prod-name').value = '';
+        document.getElementById('modal-prod-category').value = currentAdminCat !== 'all' ? currentAdminCat : 'doces';
+        document.getElementById('modal-prod-price').value = '';
+        document.getElementById('modal-prod-sizes').value = '';
+        document.getElementById('modal-prod-badge').value = 'none';
+        document.getElementById('modal-prod-desc').value = '';
+        document.getElementById('modal-prod-image-url').value = '';
+        document.getElementById('modal-img-preview').src = 'logo.jpg';
+        document.getElementById('modal-prod-active').checked = true;
+        document.getElementById('upload-status-text').textContent = '';
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+    }
+
+    function editProduct(productId) {
+      const prod = cachedProducts.find(p => p.id === productId);
+      if (!prod) return;
+
+      document.getElementById('modal-product-title').textContent = 'Editar Item';
+      document.getElementById('modal-prod-id').value = prod.id;
+      document.getElementById('modal-prod-name').value = prod.name;
+      document.getElementById('modal-prod-category').value = prod.category;
+      document.getElementById('modal-prod-price').value = prod.price;
+      document.getElementById('modal-prod-sizes').value = prod.sizes || '';
+      document.getElementById('modal-prod-badge').value = prod.badge || 'none';
+      document.getElementById('modal-prod-desc').value = prod.description || '';
+      document.getElementById('modal-prod-image-url').value = prod.image || '';
+      document.getElementById('modal-img-preview').src = prod.image || 'logo.jpg';
+      document.getElementById('modal-prod-active').checked = prod.active !== false;
+      document.getElementById('upload-status-text').textContent = '';
+
+      openProductModal(true);
+    }
+
+    async function handleSaveProduct(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('modal-prod-id').value || 'item-' + Date.now();
+      const name = document.getElementById('modal-prod-name').value.trim();
+      const category = document.getElementById('modal-prod-category').value;
+      const price = document.getElementById('modal-prod-price').value.trim();
+      const sizes = document.getElementById('modal-prod-sizes').value.trim();
+      const badge = document.getElementById('modal-prod-badge').value;
+      const description = document.getElementById('modal-prod-desc').value.trim();
+      const image = document.getElementById('modal-prod-image-url').value.trim() || 'logo.jpg';
+      const active = document.getElementById('modal-prod-active').checked;
+
+      const productData = { id, name, category, price, sizes, badge, description, image, active };
+
+      const existingIndex = cachedProducts.findIndex(p => p.id === id);
+      if (existingIndex >= 0) {
+        cachedProducts[existingIndex] = productData;
+      } else {
+        cachedProducts.unshift(productData);
+      }
+
+      await window.KauFirebase.saveProducts(cachedProducts);
+      updateCounts();
+      renderAdminProductList();
+      closeProductModal();
+      showToast('Produto salvo com sucesso!', 'success');
+    }
+
+    async function toggleProductActive(productId) {
+      const idx = cachedProducts.findIndex(p => p.id === productId);
+      if (idx >= 0) {
+        cachedProducts[idx].active = cachedProducts[idx].active === false ? true : false;
+        await window.KauFirebase.saveProducts(cachedProducts);
+        renderAdminProductList();
+        showToast(`Status do produto alterado para ${cachedProducts[idx].active ? 'Visível' : 'Oculto'}!`, 'info');
+      }
+    }
+
+    async function deleteProduct(productId) {
+      const prod = cachedProducts.find(p => p.id === productId);
+      if (!prod) return;
+
+      if (confirm(`Tem certeza que deseja excluir o item "${prod.name}"?`)) {
+        cachedProducts = cachedProducts.filter(p => p.id !== productId);
+        await window.KauFirebase.saveProducts(cachedProducts);
+        updateCounts();
+        renderAdminProductList();
+        showToast('Produto removido com sucesso!', 'info');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. GESTÃO DE IMAGENS E UPLOAD (FIREBASE STORAGE OU BASE64 LOCAL)
+    // -------------------------------------------------------------------------
+    async function handleImageFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const status = document.getElementById('upload-status-text');
+      status.textContent = 'Enviando / Otimizando imagem...';
+
+      try {
+        const uploadRes = await window.KauFirebase.uploadImage(file, 'produto');
+        if (uploadRes.success) {
+          document.getElementById('modal-prod-image-url').value = uploadRes.url;
+          document.getElementById('modal-img-preview').src = uploadRes.url;
+          status.textContent = uploadRes.mode === 'storage' ? '✅ Salva no Firebase Storage' : '✅ Otimizada com sucesso';
+          showToast('Imagem carregada!', 'success');
+        }
+      } catch (err) {
+        status.textContent = '❌ Falha no upload';
+        alert('Erro ao processar imagem: ' + err.message);
+      }
+    }
+
+    function updateImagePreview(val) {
+      document.getElementById('modal-img-preview').src = val || 'logo.jpg';
+    }
+
+    function selectQuickImage(imgName) {
+      document.getElementById('modal-prod-image-url').value = imgName;
+      document.getElementById('modal-img-preview').src = imgName;
+      document.getElementById('upload-status-text').textContent = `Foto selecionada: ${imgName}`;
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. EDITOR DE TEXTOS DO SITE
+    // -------------------------------------------------------------------------
+    async function populateSettingsForm() {
+      const cfg = await window.KauFirebase.fetchSettings();
+      let headline = cfg.headline || 'Do bolo à diversão: a festa completa em um só lugar.';
+      if (headline === 'Sua festa completa, do buffet à diversão!') {
+        headline = 'Do bolo à diversão: a festa completa em um só lugar.';
+      }
+      document.getElementById('cfg-headline').value = headline;
+      document.getElementById('cfg-subtitle').value = cfg.subtitle || '';
+      document.getElementById('cfg-phone-display').value = cfg.phoneDisplay || '(11) 96979-8162';
+      document.getElementById('cfg-phone-raw').value = cfg.phoneRaw || '5511969798162';
+      document.getElementById('cfg-topbar').value = cfg.topbarText || '';
+      document.getElementById('cfg-guarantee').value = cfg.guaranteeText || '';
+    }
+
+    async function handleSaveSiteTexts(e) {
+      e.preventDefault();
+      const updated = {
+        headline: document.getElementById('cfg-headline').value.trim(),
+        subtitle: document.getElementById('cfg-subtitle').value.trim(),
+        phoneDisplay: document.getElementById('cfg-phone-display').value.trim(),
+        phoneRaw: document.getElementById('cfg-phone-raw').value.trim(),
+        topbarText: document.getElementById('cfg-topbar').value.trim(),
+        guaranteeText: document.getElementById('cfg-guarantee').value.trim()
+      };
+      await window.KauFirebase.saveSettings(updated);
+      showToast('Textos do site salvos e sincronizados com sucesso!', 'success');
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. CONFIGURAÇÃO DO FIREBASE (NUVEM)
+    // -------------------------------------------------------------------------
+    function populateFirebaseConfigForm() {
+      const cfg = window.KauFirebase.getConfig();
+      if (cfg) {
+        document.getElementById('fb-apiKey').value = cfg.apiKey || '';
+        document.getElementById('fb-authDomain').value = cfg.authDomain || '';
+        document.getElementById('fb-projectId').value = cfg.projectId || '';
+        document.getElementById('fb-storageBucket').value = cfg.storageBucket || '';
+        document.getElementById('fb-messagingSenderId').value = cfg.messagingSenderId || '';
+        document.getElementById('fb-appId').value = cfg.appId || '';
+      }
+    }
+
+    function updateCloudStatusUI() {
+      const status = window.KauFirebase.getStatus();
+      const indicator = document.getElementById('firebase-status-indicator');
+      const title = document.getElementById('firebase-status-title');
+      const desc = document.getElementById('firebase-status-desc');
+      const topPill = document.getElementById('admin-cloud-status');
+      const topPillText = document.getElementById('admin-cloud-status-text');
+
+      if (status.configured) {
+        indicator.className = 'w-4 h-4 rounded-full bg-emerald-500 animate-pulse';
+        title.textContent = `Status: Conectado à Nuvem (${status.projectId})`;
+        desc.textContent = 'Alterações feitas aqui aparecem instantaneamente para qualquer visitante na internet.';
+        topPill.className = 'flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        topPillText.textContent = 'Firebase Nuvem Conectado';
+      } else {
+        indicator.className = 'w-4 h-4 rounded-full bg-amber-400';
+        title.textContent = 'Status: Modo Local / Offline';
+        desc.textContent = 'O catálogo está operando perfeitamente neste navegador via LocalStorage. Conecte o Firebase para sincronizar em rede.';
+        topPill.className = 'flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200';
+        topPillText.textContent = 'Modo Local (Offline)';
+      }
+    }
+
+    function handleSaveFirebaseConfig(e) {
+      e.preventDefault();
+
+      const configObj = {
+        apiKey: document.getElementById('fb-apiKey').value.trim(),
+        authDomain: document.getElementById('fb-authDomain').value.trim(),
+        projectId: document.getElementById('fb-projectId').value.trim(),
+        storageBucket: document.getElementById('fb-storageBucket').value.trim(),
+        messagingSenderId: document.getElementById('fb-messagingSenderId').value.trim(),
+        appId: document.getElementById('fb-appId').value.trim()
+      };
+
+      if (!configObj.apiKey || !configObj.projectId) {
+        alert('Por favor, preencha ao menos o apiKey e o projectId do Firebase.');
+        return;
+      }
+
+      window.KauFirebase.saveConfig(configObj);
+      updateCloudStatusUI();
+      showToast('Configurações do Firebase salvas e testadas!', 'success');
+    }
+
+    function clearFirebaseConfig() {
+      if (confirm('Deseja desconectar as credenciais do Firebase e retornar ao modo local?')) {
+        window.KauFirebase.saveConfig(null);
+        populateFirebaseConfigForm();
+        updateCloudStatusUI();
+        showToast('Credenciais removidas. Operando em modo Local.', 'info');
+      }
+    }
+
+    async function syncLocalToFirebase() {
+      if (!window.KauFirebase.isConfigured()) {
+        alert('Configure primeiro as credenciais do Firebase acima antes de sincronizar.');
+        return;
+      }
+
+      showToast('Sincronizando produtos com o Cloud Firestore...', 'info');
+      const res = await window.KauFirebase.saveProducts(cachedProducts);
+      if (res.success && res.mode === 'cloud') {
+        showToast('Catálogo sincronizado com a nuvem com sucesso!', 'success');
+      } else {
+        alert('Aviso: Não foi possível gravar no Firestore. Verifique se o Firestore Database foi criado no console do Firebase.');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. BACKUP E RESTAURAÇÃO (JSON)
+    // -------------------------------------------------------------------------
+    function exportBackupJSON() {
+      const data = {
+        version: '3.0',
+        exportedAt: new Date().toISOString(),
+        products: cachedProducts,
+        settings: JSON.parse(localStorage.getItem('kau_site_settings') || '{}'),
+        firebaseConfig: window.KauFirebase.getConfig()
+      };
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `kau-festas-backup-${new Date().toISOString().slice(0,10)}.json`;
+      link.click();
+      showToast('Backup exportado com sucesso!', 'success');
+    }
+
+    function importBackupJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.products && Array.isArray(parsed.products)) {
+            cachedProducts = parsed.products;
+            await window.KauFirebase.saveProducts(cachedProducts);
+          }
+          if (parsed.settings) {
+            await window.KauFirebase.saveSettings(parsed.settings);
+            populateSettingsForm();
+          }
+          if (parsed.firebaseConfig) {
+            window.KauFirebase.saveConfig(parsed.firebaseConfig);
+            populateFirebaseConfigForm();
+            updateCloudStatusUI();
+          }
+          updateCounts();
+          renderAdminProductList();
+          showToast('Backup restaurado com sucesso!', 'success');
+        } catch (err) {
+          alert('Arquivo de backup inválido ou corrompido: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function resetToFactoryDefaults() {
+      if (confirm('Atenção: Isso restaurará todos os 22 produtos padrão e configurações oficiais da Kau Festas. Deseja continuar?')) {
+        const defaults = window.KAU_DEFAULT_PRODUCTS || [];
+        cachedProducts = JSON.parse(JSON.stringify(defaults));
+        await window.KauFirebase.saveProducts(cachedProducts);
+        if (window.KAU_DEFAULT_SETTINGS) {
+          await window.KauFirebase.saveSettings(window.KAU_DEFAULT_SETTINGS);
+          await populateSettingsForm();
+        }
+        updateCounts();
+        renderAdminProductList();
+        showToast('Padrões oficiais restaurados com sucesso!', 'info');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 10. TOAST NOTIFICATIONS
+    // -------------------------------------------------------------------------
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const color = type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-white';
+      const icon = type === 'success' ? 'fa-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info';
+
+      toast.className = `toast-animate pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl text-xs font-semibold shadow-lg ${color}`;
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Inicialização ao carregar página
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+    });
+  </script>
+
+</body>
+</html>

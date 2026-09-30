@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kau Doces | Calculadora de Receitas & Custos Reais</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --kau-pink: #E91E63;
+      --kau-pink-light: #FDECF1;
+      --kau-pink-soft: #FFF5F8;
+      --kau-magenta: #C71585;
+      --kau-lilac: #D8BFD8;
+      --kau-dark: #371B26;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--kau-pink-light);
+      color: var(--kau-dark);
+    }
+    .font-script {
+      font-family: 'Dancing Script', cursive;
+    }
+    .font-logo {
+      font-family: 'Great Vibes', cursive;
+    }
+    .custom-shadow {
+      box-shadow: 0 10px 30px -5px rgba(233, 30, 99, 0.12), 0 4px 6px -2px rgba(233, 30, 99, 0.05);
+    }
+    .fade-in {
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #E91E63 !important;
+      box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.18) !important;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FDECF1;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #E91E63;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#FDECF1] py-5 px-2 sm:px-4 md:py-8 text-[#371B26]">
+
+  <!-- Container Principal -->
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Topo da Aplicação / Cabeçalho da Marca -->
+    <header class="text-center mb-6 relative">
+      <div class="flex justify-between items-center mb-2 px-1">
+        <a href="index.html" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-[#880E4F] hover:text-[#E91E63] border border-[#E91E63]/30 text-xs font-bold shadow-sm hover:shadow transition active:scale-95">
+          <span>🏠</span> Voltar ao Site Kau Doces
+        </a>
+        <a href="https://kau-doces.netlify.app" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-100/80 text-[#880E4F] hover:text-[#E91E63] text-xs font-semibold">
+          <span>🌐</span> Ver Site Online
+        </a>
+      </div>
+
+      <div class="absolute left-3 top-10 text-2xl md:text-3xl opacity-60 animate-bounce" style="animation-duration: 3s;">🧁</div>
+      <div class="absolute right-3 top-10 text-2xl md:text-3xl opacity-60 animate-pulse">💖</div>
+
+      <!-- Badge de Identidade -->
+      <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 border border-[#E91E63]/20 text-[#E91E63] text-xs sm:text-sm font-semibold mb-2 shadow-sm backdrop-blur-sm">
+        <span>✨</span> Kau Doces • Gestão de Custos Reais & Precificação <span>✨</span>
+      </div>
+
+      <!-- Título Principal em Fonte Script Decorativa -->
+      <h1 class="font-script text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#E91E63] tracking-wide drop-shadow-sm">
+        Calculadora de Receita de Doces
+      </h1>
+      <p class="text-xs sm:text-sm text-[#880E4F]/80 mt-1 font-medium">
+        Calcule os custos de cada receita, salve no seu catálogo e compartilhe o resumo no WhatsApp 💕
+      </p>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- BARRA DE GESTÃO DE RECEITAS (SALVAR, CARREGAR, NOVA RECEITA & MODAL)      -->
+    <!-- ========================================================================= -->
+    <section class="bg-white/95 rounded-3xl p-4 sm:p-5 custom-shadow border border-[#E91E63]/20 mb-6 backdrop-blur-md relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#E91E63] via-[#C71585] to-[#D8BFD8]"></div>
+      
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mt-1">
+        
+        <!-- Campo: Nome da Receita Atual -->
+        <div class="flex-1">
+          <div class="flex items-center justify-between mb-1">
+            <label for="recipe-title-input" class="text-xs font-bold text-[#880E4F] uppercase tracking-wider flex items-center gap-1.5">
+              <span>🏷️</span> Nome da Receita Ativa:
+            </label>
+            <span id="recipe-status-pill" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E91E63]/10 text-[#E91E63] border border-[#E91E63]/20">
+              Salva
+            </span>
+          </div>
+          <div class="relative flex items-center">
+            <input 
+              type="text" 
+              id="recipe-title-input" 
+              value="Brigadeiro Tradicional (Cento)" 
+              placeholder="Ex: Brigadeiro Gourmet de Morango..."
+              class="w-full px-3.5 py-2 sm:py-2.5 font-bold text-sm sm:text-base bg-[#FFF5F8] text-[#371B26] rounded-2xl border-2 border-[#E91E63]/30 focus:border-[#E91E63] shadow-inner transition-all"
+              oninput="markRecipeDirty()"
+            />
+          </div>
+        </div>
+
+        <!-- Barra de Ações Rápidas (Opção B) -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+          
+          <!-- Dropdown Seletor de Receitas Salvas -->
+          <div class="flex-1 sm:w-56 min-w-[170px]">
+            <label class="block text-[10px] font-bold text-[#880E4F] uppercase tracking-wider mb-1">
+              📖 Carregar Receita Salva:
+            </label>
+            <select 
+              id="saved-recipes-select" 
+              onchange="onSelectRecipeChange(this.value)"
+              class="w-full px-3 py-2 text-xs sm:text-sm font-bold bg-white text-[#880E4F] border border-[#E91E63]/30 rounded-xl shadow-sm focus:border-[#E91E63] cursor-pointer"
+            >
+              <!-- Preenchido via JS -->
+            </select>
+          </div>
+
+          <!-- Botão Nova Receita / Limpar -->
+          <div class="flex flex-col justify-end">
+            <span class="block text-[10px] text-transparent mb-1 hidden sm:block">.</span>
+            <button 
+              onclick="createNewRecipePrompt()" 
+              title="Limpar campos para digitar uma nova receita" 
+              class="h-[38px] px-3.5 rounded-xl bg-white border-2 border-[#E91E63] text-[#E91E63] hover:bg-[#FDECF1] font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 whitespace-nowrap"
+            >
+              <span>✨</span> Nova Receita
+            </button>
+          </div>
+
+          <!-- Botão Salvar Receita -->
+          <div class="flex flex-col justify-end">
+            <span class="block text-[10px] text-transparent mb-1 hidden sm:block">.</span>
+            <button 
+              onclick="saveCurrentRecipe()" 
+              title="Salvar alterações desta receita" 
+              class="h-[38px] px-4 rounded-xl bg-gradient-to-r from-[#E91E63] to-[#C71585] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:opacity-95 shadow-md active:scale-95 transition-all whitespace-nowrap"
+            >
+              <span>💾</span> Salvar
+            </button>
+          </div>
+
+          <!-- Botão Gerenciar Modal -->
+          <div class="flex flex-col justify-end">
+            <span class="block text-[10px] text-transparent mb-1 hidden sm:block">.</span>
+            <button 
+              onclick="openRecipeManagerModal()" 
+              title="Abrir catálogo completo de receitas salvas" 
+              class="h-[38px] px-3 rounded-xl bg-[#FDECF1] hover:bg-[#E91E63] text-[#E91E63] hover:text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1 transition-all shadow-2xs active:scale-95"
+            >
+              <span>📂</span> Catálogo
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Barra de Navegação por Abas (Tabs) -->
+    <nav class="flex items-center justify-center mb-6">
+      <div class="inline-flex p-1.5 rounded-2xl bg-white/80 border border-[#E91E63]/25 shadow-sm backdrop-blur-sm gap-1 sm:gap-2 max-w-full overflow-x-auto">
+        
+        <!-- Aba 1: Ingredientes -->
+        <button 
+          id="tab-btn-ingredients" 
+          onclick="switchTab('ingredients')" 
+          class="flex items-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-gradient-to-r from-[#E91E63] to-[#C71585] text-white shadow-sm"
+        >
+          <span>🥣</span> <span>Ingredientes da Receita</span>
+        </button>
+
+        <!-- Aba 2: Gastos Ocultos -->
+        <button 
+          id="tab-btn-hidden" 
+          onclick="switchTab('hidden')" 
+          class="flex items-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all text-[#880E4F] hover:bg-[#FDECF1]"
+        >
+          <span>💡</span> <span>Gastos Ocultos & Fixos</span>
+          <span id="badge-hidden-count" class="hidden sm:inline-block px-1.5 py-0.2 text-[10px] bg-[#E91E63]/15 text-[#E91E63] rounded-full">Gás • Luz • Emb</span>
+        </button>
+
+        <!-- Aba 3: Resumo Completo -->
+        <button 
+          id="tab-btn-summary" 
+          onclick="switchTab('summary')" 
+          class="flex items-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all text-[#880E4F] hover:bg-[#FDECF1]"
+        >
+          <span>📋</span> <span>Resumo & Tabela</span>
+        </button>
+
+      </div>
+    </nav>
+
+    <!-- Layout Principal em Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- ========================================================================= -->
+      <!-- ÁREA PRINCIPAL: CONTEÚDO DAS ABAS (Lg: 8 colunas)                         -->
+      <!-- ========================================================================= -->
+      <div class="lg:col-span-8 space-y-6">
+
+        <!-- ========================================== -->
+        <!-- ABA 1: INGREDIENTES DA RECEITA             -->
+        <!-- ========================================== -->
+        <section id="tab-content-ingredients" class="space-y-6">
+          
+          <div class="bg-white rounded-3xl p-4 sm:p-6 custom-shadow border border-[#E91E63]/15 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#E91E63] via-[#C71585] to-[#D8BFD8]"></div>
+            
+            <!-- Cabeçalho da Seção -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5 mt-1">
+              <div class="flex items-center gap-2">
+                <span class="p-2 rounded-xl bg-[#FDECF1] text-[#E91E63] text-lg">🥣</span>
+                <div>
+                  <h2 class="font-bold text-base sm:text-lg text-[#371B26]">Ingredientes (Cálculo Proporcional)</h2>
+                  <p class="text-xs text-gray-500">O custo é calculado automaticamente após preencher os dados do ingrediente</p>
+                </div>
+              </div>
+              
+              <span id="ingredient-count-badge" class="px-2.5 py-1 rounded-lg bg-[#FDECF1] text-[#E91E63] text-xs font-bold self-end sm:self-auto">
+                0 itens
+              </span>
+            </div>
+
+            <!-- Cabeçalho das Colunas Perfeitamente Alinhado e Centralizado -->
+            <div class="hidden sm:grid grid-cols-12 gap-2 text-[11px] font-bold text-[#880E4F] px-3 py-2.5 bg-[#FDECF1]/80 rounded-2xl mb-3 uppercase tracking-wider items-center">
+              <div class="col-span-4 text-left">Ingrediente</div>
+              <div class="col-span-2 text-center">Embalagem (g/un)</div>
+              <div class="col-span-2 text-center">Preço Emb. (R$)</div>
+              <div class="col-span-2 text-center">Qtd Gasta</div>
+              <div class="col-span-2 text-center">Custo Gasto</div>
+            </div>
+
+            <!-- Lista Dinâmica de Linhas de Ingredientes -->
+            <div id="ingredients-container" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
+              <!-- Renderizado via JavaScript -->
+            </div>
+
+            <!-- Botões de Ação Abaixo da Tabela -->
+            <div class="pt-4 mt-5 border-t border-gray-100 flex flex-col sm:flex-row items-center gap-3">
+              <!-- Botão Principal: Adicionar Ingrediente -->
+              <button onclick="addIngredientRow()" class="w-full sm:flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-[#E91E63] to-[#C71585] hover:opacity-95 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-[0.99]">
+                <span class="text-lg leading-none font-black">+</span> Adicionar Ingrediente
+              </button>
+              
+              <!-- Botão Secundário: Limpar Ingredientes -->
+              <button onclick="clearAllIngredients()" class="w-full sm:w-auto py-3 px-5 rounded-2xl bg-white border-2 border-[#E91E63] text-[#E91E63] hover:bg-[#FDECF1] font-bold text-sm flex items-center justify-center gap-1.5 transition-all">
+                <span>🗑️</span> Limpar Ingredientes
+              </button>
+            </div>
+
+            <!-- Rendimento da Receita -->
+            <div class="mt-5 p-4 rounded-2xl bg-[#FDECF1] border border-[#E91E63]/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <label for="recipe-yield" class="block font-bold text-sm text-[#880E4F]">
+                  🍰 Rendimento Total da Receita
+                </label>
+                <p class="text-xs text-gray-600 mt-0.5">Quantos docinhos de 20g essa panela rende?</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <input 
+                  type="number" 
+                  id="recipe-yield" 
+                  min="1" 
+                  value="30" 
+                  class="w-24 px-3 py-2 text-center text-base font-bold bg-white text-[#E91E63] border border-[#E91E63]/30 rounded-xl shadow-inner"
+                  oninput="markRecipeDirty(); calculateTotals();"
+                />
+                <span class="text-xs font-bold text-[#880E4F] uppercase">unidades (20g)</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Dica Operacional -->
+          <div class="bg-white/95 rounded-2xl p-4 border border-[#E91E63]/20 text-xs text-[#880E4F] flex items-center gap-3">
+            <div class="text-2xl">💡</div>
+            <div class="leading-relaxed">
+              <strong>Como o cálculo funciona:</strong> Ao digitar o peso do pacote, o preço e a quantidade que utilizou, a coluna <strong>Custo Gasto</strong> calcula exatamente o valor proporcional gasto na panela!
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ABA 2: GASTOS OCULTOS & CUSTOS FIXOS       -->
+        <!-- ========================================== -->
+        <section id="tab-content-hidden" class="hidden space-y-6">
+          
+          <div class="bg-white rounded-3xl p-4 sm:p-6 custom-shadow border border-[#E91E63]/15 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#C71585] via-[#E91E63] to-[#FDECF1]"></div>
+            
+            <div class="flex items-center justify-between mb-4 mt-1">
+              <div class="flex items-center gap-2">
+                <span class="p-2 rounded-xl bg-[#FDECF1] text-[#E91E63] text-lg">💡</span>
+                <div>
+                  <h2 class="font-bold text-base sm:text-lg text-[#371B26]">Gastos Ocultos & Custos Operacionais</h2>
+                  <p class="text-xs text-gray-500">Cálculo proporcional de gás por minuto, energia, embalagens e entrega</p>
+                </div>
+              </div>
+              <span id="badge-total-hidden-cost" class="px-2.5 py-1 rounded-lg bg-[#E91E63] text-white text-xs font-bold">
+                Total: R$ 0,00
+              </span>
+            </div>
+
+            <div class="space-y-4">
+              
+              <!-- 1. CUSTO DO GÁS (GLP / FOGO LIGADO EM MINUTOS) -->
+              <div class="p-4 rounded-2xl bg-[#FFF5F8] border border-[#E91E63]/20">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">🔥</span>
+                    <div>
+                      <h3 class="font-bold text-sm text-[#880E4F]">1. Gás de Cozinha (Fogo / Forno Ligado)</h3>
+                      <p class="text-[11px] text-gray-500">Ex: Botijão R$ 80,00 usado por 25 minutos na receita</p>
+                    </div>
+                  </div>
+                  <span id="card-gas-cost" class="text-base font-black text-[#E91E63] bg-white px-2.5 py-1 rounded-xl border border-[#E91E63]/20 shadow-2xs">
+                    R$ 0,00
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Preço do Botijão (R$):</label>
+                    <div class="relative flex items-center">
+                      <span class="absolute left-2.5 text-xs font-bold text-[#E91E63]">R$</span>
+                      <input 
+                        type="number" 
+                        id="gas-tank-price" 
+                        value="80.00" 
+                        step="1.00" 
+                        class="w-full pl-8 pr-2 py-1.5 font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#371B26]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Duração Média Botijão:</label>
+                    <div class="relative flex items-center">
+                      <input 
+                        type="number" 
+                        id="gas-tank-hours" 
+                        value="45" 
+                        class="w-full px-2 py-1.5 text-center font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#371B26]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                      <span class="absolute right-2 text-[10px] font-bold text-gray-400">Horas (~2.700 min)</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Tempo de Fogo na Receita:</label>
+                    <div class="relative flex items-center">
+                      <input 
+                        type="number" 
+                        id="gas-used-minutes" 
+                        value="25" 
+                        class="w-full px-2 py-1.5 text-center font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#E91E63]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                      <span class="absolute right-2 text-[10px] font-bold text-[#880E4F]">Minutos</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-2.5 text-[11px] text-[#880E4F]/80 flex items-center justify-between">
+                  <span>Fórmula: <code class="font-mono text-[#E91E63]">(Preço ÷ Minutos Totais) × Minutos Usados</code></span>
+                  <span id="gas-detail-formula" class="font-semibold text-[#C71585]">(80 ÷ 2700) × 25 = R$ 0,74</span>
+                </div>
+              </div>
+
+              <!-- 2. CUSTO DE ENERGIA ELÉTRICA -->
+              <div class="p-4 rounded-2xl bg-[#FDECF1] border border-[#E91E63]/20">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">⚡</span>
+                    <div>
+                      <h3 class="font-bold text-sm text-[#880E4F]">2. Energia Elétrica Proporcional</h3>
+                      <p class="text-[11px] text-gray-500">Batedeira, geladeira, climatização e luz de produção</p>
+                    </div>
+                  </div>
+                  <span id="card-energy-cost" class="text-base font-black text-[#E91E63] bg-white px-2.5 py-1 rounded-xl border border-[#E91E63]/20 shadow-2xs">
+                    R$ 0,00
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Custo Estimado por Hora de Produção:</label>
+                    <div class="relative flex items-center">
+                      <span class="absolute left-2.5 text-xs font-bold text-[#E91E63]">R$</span>
+                      <input 
+                        type="number" 
+                        id="energy-hourly-rate" 
+                        value="1.80" 
+                        step="0.10" 
+                        class="w-full pl-8 pr-2 py-1.5 font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#371B26]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                      <span class="absolute right-2 text-[10px] font-bold text-gray-400">/ hora</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Tempo de Produção da Receita:</label>
+                    <div class="relative flex items-center">
+                      <input 
+                        type="number" 
+                        id="energy-used-minutes" 
+                        value="40" 
+                        class="w-full px-2 py-1.5 text-center font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#E91E63]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                      <span class="absolute right-2 text-[10px] font-bold text-[#880E4F]">Minutos</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. EMBALAGENS EXTERNAS, FITAS & SACOLAS -->
+              <div class="p-4 rounded-2xl bg-[#FFF5F8] border border-[#E91E63]/20">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">🎁</span>
+                    <div>
+                      <h3 class="font-bold text-sm text-[#880E4F]">3. Embalagens Externas & Finalização</h3>
+                      <p class="text-[11px] text-gray-500">Caixas de entrega, fitas personalizadas, sacolas kraft e tags</p>
+                    </div>
+                  </div>
+                  <span id="card-packaging-cost" class="text-base font-black text-[#E91E63] bg-white px-2.5 py-1 rounded-xl border border-[#E91E63]/20 shadow-2xs">
+                    R$ 0,00
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Caixa de Doces (Un):</label>
+                    <div class="relative flex items-center">
+                      <span class="absolute left-2.5 text-xs font-bold text-[#E91E63]">R$</span>
+                      <input 
+                        type="number" 
+                        id="pack-box-price" 
+                        value="3.50" 
+                        step="0.50" 
+                        class="w-full pl-8 pr-2 py-1.5 font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#371B26]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Fita + Tag + Seda:</label>
+                    <div class="relative flex items-center">
+                      <span class="absolute left-2.5 text-xs font-bold text-[#E91E63]">R$</span>
+                      <input 
+                        type="number" 
+                        id="pack-ribbon-price" 
+                        value="0.80" 
+                        step="0.10" 
+                        class="w-full pl-8 pr-2 py-1.5 font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#371B26]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Sacola Kraft Kau Doces:</label>
+                    <div class="relative flex items-center">
+                      <span class="absolute left-2.5 text-xs font-bold text-[#E91E63]">R$</span>
+                      <input 
+                        type="number" 
+                        id="pack-bag-price" 
+                        value="1.20" 
+                        step="0.20" 
+                        class="w-full pl-8 pr-2 py-1.5 font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#371B26]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. TAXA DE ENTREGA / DESLOCAMENTO -->
+              <div class="p-4 rounded-2xl bg-[#FDECF1] border border-[#E91E63]/20">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">🛵</span>
+                    <div>
+                      <h3 class="font-bold text-sm text-[#880E4F]">4. Taxa de Entrega / Deslocamento</h3>
+                      <p class="text-[11px] text-gray-500">Valor de frete ou custo de combustível embutido</p>
+                    </div>
+                  </div>
+                  <span id="card-delivery-cost" class="text-base font-black text-[#E91E63] bg-white px-2.5 py-1 rounded-xl border border-[#E91E63]/20 shadow-2xs">
+                    R$ 0,00
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label class="block font-semibold text-[#880E4F] mb-1">Valor da Entrega / Frete (R$):</label>
+                    <div class="relative flex items-center">
+                      <span class="absolute left-2.5 text-xs font-bold text-[#E91E63]">R$</span>
+                      <input 
+                        type="number" 
+                        id="delivery-price" 
+                        value="0.00" 
+                        step="1.00" 
+                        class="w-full pl-8 pr-2 py-1.5 font-bold bg-white rounded-xl border border-[#E91E63]/25 text-[#371B26]"
+                        oninput="markRecipeDirty(); calculateHiddenCosts(); calculateTotals();"
+                      />
+                    </div>
+                    <span class="text-[10px] text-gray-500 mt-1 block">Deixe 0,00 caso a entrega seja cobrada à parte do cliente.</span>
+                  </div>
+
+                  <div class="flex flex-col justify-center">
+                    <div class="p-2.5 bg-white/70 rounded-xl border border-[#E91E63]/15 text-[11px] text-[#880E4F]">
+                      <span class="font-bold">Observação:</span> Se a entrega for paga pelo cliente como taxa adicional, deixe R$ 0,00 para não encarecer o custo base do cento.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ABA 3: RESUMO GERAL & TABELA COMPARATIVA   -->
+        <!-- ========================================== -->
+        <section id="tab-content-summary" class="hidden space-y-6">
+          
+          <div class="bg-white rounded-3xl p-5 sm:p-6 custom-shadow border border-[#E91E63]/15 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#E91E63] via-[#C71585] to-[#D8BFD8]"></div>
+            
+            <div class="flex items-center gap-2 mb-4 mt-1">
+              <span class="p-2 rounded-xl bg-[#FDECF1] text-[#E91E63] text-lg">📋</span>
+              <div>
+                <h2 class="font-bold text-base sm:text-lg text-[#371B26]">Demonstrativo Completo de Custos & Lucro</h2>
+                <p class="text-xs text-gray-500">Visão integrada de insumos, custos fixos operacionais e precificação</p>
+              </div>
+            </div>
+
+            <!-- Grade com os 3 Pilares de Custos -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+              <div class="p-3.5 rounded-2xl bg-[#FFF5F8] border border-[#E91E63]/15 text-center">
+                <span class="text-[10px] font-bold text-[#880E4F] uppercase tracking-wider block">1. Insumos & Ingredientes</span>
+                <span id="summary-tab-ing-cost" class="text-xl font-black text-[#E91E63] block mt-1">R$ 0,00</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-[#FDECF1] border border-[#E91E63]/20 text-center">
+                <span class="text-[10px] font-bold text-[#880E4F] uppercase tracking-wider block">2. Gastos Ocultos (Gás/Luz/Emb)</span>
+                <span id="summary-tab-hidden-cost" class="text-xl font-black text-[#C71585] block mt-1">R$ 0,00</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-gradient-to-br from-[#E91E63] to-[#C71585] text-white text-center shadow-md">
+                <span class="text-[10px] font-bold text-pink-100 uppercase tracking-wider block">3. Custo Real Total</span>
+                <span id="summary-tab-real-cost" class="text-xl font-black text-white block mt-1">R$ 0,00</span>
+              </div>
+            </div>
+
+            <!-- Tabela de Referência Oficial Kau Doces -->
+            <h3 class="font-bold text-sm text-[#E91E63] mb-2 flex items-center gap-1.5">
+              <span>📋</span> Tabela de Preços Atuais (Cento)
+            </h3>
+            <div class="overflow-x-auto rounded-xl border border-[#E91E63]/15">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-[#FDECF1] text-[#880E4F] font-bold uppercase text-[10px] tracking-wider border-b border-[#E91E63]/15">
+                  <tr>
+                    <th class="py-2.5 px-3">Docinho</th>
+                    <th class="py-2.5 px-2 text-center">Peso</th>
+                    <th class="py-2.5 px-3 text-right">Valor Cento (R$)</th>
+                    <th class="py-2.5 px-3 text-right">Preço Unidade</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E91E63]/10 font-medium">
+                  <tr class="bg-[#FFF5F8] font-bold text-[#E91E63]">
+                    <td class="py-2.5 px-3 flex items-center gap-1.5">
+                      <span>🍫</span> Brigadeiro Cento <span class="text-[9px] bg-[#E91E63] text-white px-1.5 py-0.2 rounded-full">Base</span>
+                    </td>
+                    <td class="py-2.5 px-2 text-center text-gray-600">20g</td>
+                    <td class="py-2.5 px-3 text-right font-black text-base text-[#E91E63]">R$ 120,00</td>
+                    <td class="py-2.5 px-3 text-right font-black text-sm text-[#E91E63]">R$ 1,20</td>
+                  </tr>
+                  <tr class="hover:bg-[#FFF5F8]/50">
+                    <td class="py-2.5 px-3">🥥 Beijinho de Coco Cento</td>
+                    <td class="py-2.5 px-2 text-center text-gray-600">20g</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-gray-700">R$ 120,00</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-gray-700">R$ 1,20</td>
+                  </tr>
+                  <tr class="hover:bg-[#FFF5F8]/50">
+                    <td class="py-2.5 px-3">🌰 Ninho com Nutella Cento</td>
+                    <td class="py-2.5 px-2 text-center text-gray-600">20g</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-gray-700">R$ 145,00</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-gray-700">R$ 1,45</td>
+                  </tr>
+                  <tr class="hover:bg-[#FFF5F8]/50">
+                    <td class="py-2.5 px-3">✨ Brigadeiro Belga Cento</td>
+                    <td class="py-2.5 px-2 text-center text-gray-600">20g</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-gray-700">R$ 160,00</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-gray-700">R$ 1,60</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Anotação Visual de Margem -->
+            <div id="summary-margin-alert" class="mt-4 p-3.5 rounded-2xl bg-[#FFF5F8] border-2 border-dashed border-[#E91E63]/40 flex items-center gap-3">
+              <div class="text-2xl animate-pulse">🎯</div>
+              <div>
+                <p class="text-xs text-[#880E4F] font-semibold leading-snug">
+                  Com base no custo real total (insumos + gás + energia + embalagem):
+                </p>
+                <p class="text-sm font-black text-[#E91E63] mt-0.5" id="summary-margin-text">
+                  Você está operando com uma margem real no Cento (R$ 120,00).
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- PAINEL LATERAL DIREITO: CUSTOS CONSOLIDADOS & PRECIFICAÇÃO (Lg: 4 colunas) -->
+      <!-- ========================================================================= -->
+      <aside class="lg:col-span-4 space-y-6">
+
+        <!-- Cartão Principal de Custos e Margem -->
+        <div class="bg-white rounded-3xl p-5 sm:p-6 custom-shadow border border-[#E91E63]/15 relative overflow-hidden sticky top-4">
+          <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#C71585] via-[#E91E63] to-[#FDECF1]"></div>
+          
+          <!-- Subtítulo em Rosa Pink -->
+          <div class="flex items-center gap-2 mb-4 mt-1">
+            <span class="p-2 rounded-xl bg-[#FDECF1] text-[#E91E63] text-lg">📊</span>
+            <div>
+              <h2 class="font-bold text-base sm:text-lg text-[#E91E63]">Custos e Precificação</h2>
+              <p class="text-xs text-gray-500">Atualizado em tempo real</p>
+            </div>
+          </div>
+
+          <!-- Cards de Resultados em Tempo Real -->
+          <div class="space-y-2.5">
+            
+            <!-- Custo dos Insumos -->
+            <div class="p-3 rounded-2xl bg-[#FFF5F8] border border-[#E91E63]/15 flex items-center justify-between text-xs">
+              <div>
+                <span class="font-bold uppercase text-[#880E4F] block">Insumos da Receita:</span>
+                <span class="text-gray-500 text-[10px]">Ingredientes</span>
+              </div>
+              <div id="display-ingredients-cost" class="font-black text-sm text-[#371B26]">
+                R$ 0,00
+              </div>
+            </div>
+
+            <!-- Custos Ocultos (Gás + Luz + Embalagem) -->
+            <div class="p-3 rounded-2xl bg-[#FDECF1] border border-[#E91E63]/20 flex items-center justify-between text-xs">
+              <div>
+                <span class="font-bold uppercase text-[#880E4F] block">Gastos Ocultos:</span>
+                <span class="text-gray-500 text-[10px]">Gás, luz, embalagem, frete</span>
+              </div>
+              <div id="display-hidden-cost" class="font-black text-sm text-[#C71585]">
+                + R$ 0,00
+              </div>
+            </div>
+
+            <!-- Custo Total REAL da Receita -->
+            <div class="p-3.5 rounded-2xl bg-[#FFF5F8] border-2 border-[#E91E63]/30 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-[#880E4F] block">Custo Total Real:</span>
+                <span class="text-[10px] text-gray-500">Insumos + Gastos Ocultos</span>
+              </div>
+              <div id="display-total-cost" class="text-xl sm:text-2xl font-black text-[#E91E63]">
+                R$ 0,00
+              </div>
+            </div>
+
+            <!-- Custo por Unidade (20g) -->
+            <div class="p-3 rounded-2xl bg-[#FDECF1] border border-[#E91E63]/20 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-[#880E4F] block">Custo Real / Unidade:</span>
+                <span class="text-[10px] text-gray-500" id="yield-summary-text">Total ÷ 30 un</span>
+              </div>
+              <div id="display-unit-cost" class="text-lg sm:text-xl font-black text-[#C71585]">
+                R$ 0,00
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Divisor Estilizado -->
+          <div class="relative my-4">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#E91E63]/15"></div></div>
+            <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-[#E91E63] font-bold">✨ Margem de Venda</span></div>
+          </div>
+
+          <!-- Definição de Margem de Venda -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label for="profit-margin-input" class="font-bold text-xs sm:text-sm text-[#371B26]">
+                Margem de Venda (%)
+              </label>
+              <div class="flex items-center gap-1">
+                <input 
+                  type="number" 
+                  id="profit-margin-input" 
+                  value="150" 
+                  min="0"
+                  step="5"
+                  class="w-20 px-2.5 py-1 text-right font-black text-[#E91E63] bg-white border border-[#E91E63]/30 rounded-xl text-base"
+                  oninput="markRecipeDirty(); calculateTotals();"
+                />
+                <span class="font-bold text-[#E91E63] text-sm">%</span>
+              </div>
+            </div>
+
+            <!-- Botões Rápidos de Margem -->
+            <div class="grid grid-cols-4 gap-1">
+              <button onclick="setMargin(100)" class="py-1 text-xs font-semibold rounded-lg bg-[#FDECF1] hover:bg-[#E91E63] hover:text-white text-[#E91E63] transition-colors">100%</button>
+              <button onclick="setMargin(150)" class="py-1 text-xs font-semibold rounded-lg bg-[#E91E63] text-white transition-colors" id="btn-margin-150">150%</button>
+              <button onclick="setMargin(180)" class="py-1 text-xs font-semibold rounded-lg bg-[#FDECF1] hover:bg-[#E91E63] hover:text-white text-[#E91E63] transition-colors">180%</button>
+              <button onclick="setMargin(200)" class="py-1 text-xs font-semibold rounded-lg bg-[#FDECF1] hover:bg-[#E91E63] hover:text-white text-[#E91E63] transition-colors">200%</button>
+            </div>
+
+            <!-- Card Destaque: Preço de Venda Sugerido -->
+            <div class="mt-4 p-4 rounded-2xl bg-gradient-to-br from-[#E91E63] via-[#D81B60] to-[#C71585] text-white shadow-lg relative overflow-hidden">
+              <div class="absolute -right-4 -bottom-4 text-6xl opacity-15">💰</div>
+              
+              <div class="relative z-10">
+                <span class="text-[11px] font-bold uppercase tracking-widest text-pink-100 block mb-0.5">
+                  Preço Sugerido (Unidade 20g)
+                </span>
+                <div class="flex items-baseline justify-between mt-1">
+                  <span id="display-suggested-unit-price" class="text-3xl font-black text-white tracking-tight">
+                    R$ 0,00
+                  </span>
+                  <span id="display-profit-per-unit" class="text-xs font-medium bg-white/20 px-2.5 py-0.5 rounded-full text-white backdrop-blur-xs">
+                    Lucro: R$ 0,00/un
+                  </span>
+                </div>
+
+                <div class="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-between text-xs text-pink-100">
+                  <span>Sugerido p/ o Cento (100 un):</span>
+                  <span id="display-suggested-hundred-price" class="font-black text-sm text-white bg-black/20 px-2 py-0.5 rounded-lg">
+                    R$ 0,00
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botão de Compartilhar Resumo no WhatsApp -->
+            <button 
+              onclick="shareRecipeWhatsApp()" 
+              class="w-full mt-3 py-3 px-4 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-[0.99]"
+            >
+              <span class="text-lg leading-none">📲</span> Compartilhar no WhatsApp
+            </button>
+
+          </div>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- RODAPÉ DA MARCA KAU DOCES                                                 -->
+    <!-- ========================================================================= -->
+    <footer class="mt-10 text-center pb-8 pt-4 border-t border-[#E91E63]/15">
+      <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 bg-white/70 px-6 py-3.5 rounded-3xl border border-[#E91E63]/20 shadow-sm backdrop-blur-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🧁</span>
+          <span class="font-logo text-3xl font-bold text-[#E91E63]">Kau Doces</span>
+          <span class="text-xs font-bold text-[#C71585] uppercase tracking-widest pl-1">Artesanal</span>
+        </div>
+
+        <div class="hidden sm:block w-px h-6 bg-[#E91E63]/20"></div>
+
+        <a href="https://wa.me/5547999999999" target="_blank" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#E91E63] hover:text-[#C71585] bg-[#FDECF1] hover:bg-[#E91E63] hover:text-white px-4 py-2 rounded-full transition-all shadow-2xs">
+          <span>💬</span> WhatsApp Oficial: (47) 99999-9999
+        </a>
+      </div>
+
+      <p class="text-xs text-[#880E4F]/70 mt-3 font-medium flex items-center justify-center gap-1">
+        Doces momentos tornam a vida mais doce <span>💕</span> Feito com amor
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: CATÁLOGO DE RECEITAS SALVAS                                        -->
+  <!-- ========================================================================= -->
+  <div id="recipe-modal-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5 fade-in">
+    <div class="bg-white w-full max-w-2xl rounded-3xl custom-shadow border border-[#E91E63]/20 overflow-hidden flex flex-col max-h-[90vh]">
+      
+      <!-- Cabeçalho do Modal -->
+      <div class="p-4 sm:p-5 bg-gradient-to-r from-[#E91E63] to-[#C71585] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📖</span>
+          <div>
+            <h3 class="font-bold text-base sm:text-lg">Catálogo de Receitas Salvas</h3>
+            <p class="text-xs text-pink-100">Selecione, edite, duplique ou exclua suas receitas</p>
+          </div>
+        </div>
+        <button 
+          onclick="closeRecipeManagerModal()" 
+          class="w-8 h-8 rounded-full bg-white/20 hover:bg-white text-white hover:text-[#E91E63] flex items-center justify-center font-black text-lg transition-all"
+        >
+          ×
+        </button>
+      </div>
+
+      <!-- Barra de Pesquisa e Contador -->
+      <div class="p-4 border-b border-gray-100 bg-[#FFF5F8] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="relative flex-1">
+          <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
+          <input 
+            type="text" 
+            id="recipe-search-input" 
+            placeholder="Pesquisar receita pelo nome..." 
+            class="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white rounded-xl border border-[#E91E63]/25 focus:border-[#E91E63] font-medium"
+            oninput="renderRecipeManagerList(this.value)"
+          />
+        </div>
+        <span id="modal-recipe-count" class="text-xs font-bold text-[#880E4F] self-end sm:self-auto bg-white px-3 py-2 rounded-xl border border-[#E91E63]/20">
+          0 receitas salvas
+        </span>
+      </div>
+
+      <!-- Lista de Cards de Receitas -->
+      <div id="modal-recipes-list" class="p-4 overflow-y-auto space-y-3 flex-1">
+        <!-- Renderizado via JS -->
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
+        <button 
+          onclick="closeRecipeManagerModal(); createNewRecipePrompt();" 
+          class="px-4 py-2.5 rounded-xl bg-[#FFF5F8] border border-[#E91E63] text-[#E91E63] font-bold text-xs sm:text-sm hover:bg-[#FDECF1] transition-all flex items-center gap-1.5"
+        >
+          <span>✨</span> Criar Nova Receita
+        </button>
+        <button 
+          onclick="closeRecipeManagerModal()" 
+          class="px-5 py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-xs sm:text-sm transition-all"
+        >
+          Fechar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: LÓGICA DINÂMICA, PERSISTÊNCIA LOCAL & INTEGRAÇÃO WHATSAPP     -->
+  <!-- ========================================================================= -->
+  <script>
+    // ==========================================
+    // ESTADO GLOBAL DA APLICAÇÃO
+    // ==========================================
+    const STORAGE_KEY = 'kau_doces_recipes_catalog_v1';
+    const ACTIVE_RECIPE_ID_KEY = 'kau_doces_active_recipe_id_v1';
+
+    let currentRecipeId = null;
+    let isDirty = false;
+    let ingredients = [];
+
+    // Receitas Padrão Modelo (Caso o usuário abra o sistema pela 1ª vez)
+    const DEFAULT_RECIPES = [
+      {
+        id: "recipe_brigadeiro_tradicional",
+        name: "Brigadeiro Tradicional (Cento)",
+        yieldUnits: 30,
+        profitMargin: 150,
+        updatedAt: new Date().toISOString(),
+        ingredients: [
+          { id: 1, name: "Leite Condensado Moça (1 lata)", packageQty: 395, packagePrice: 6.50, usedQty: 395, unitType: "g" },
+          { id: 2, name: "Chocolate em Pó 50% (Pacote 1kg)", packageQty: 1000, packagePrice: 38.00, usedQty: 60, unitType: "g" },
+          { id: 3, name: "Manteiga Extra sem Sal (500g)", packageQty: 500, packagePrice: 28.00, usedQty: 30, unitType: "g" },
+          { id: 4, name: "Granulado Melken / Callebaut (Pacote 500g)", packageQty: 500, packagePrice: 24.00, usedQty: 150, unitType: "g" },
+          { id: 5, name: "Forminhas nº 4 e Tapetinhos (Cento)", packageQty: 100, packagePrice: 5.00, usedQty: 30, unitType: "un" }
+        ],
+        hiddenCosts: {
+          gasTankPrice: 80.00,
+          gasTankHours: 45,
+          gasUsedMinutes: 25,
+          energyHourlyRate: 1.80,
+          energyUsedMinutes: 40,
+          packBoxPrice: 3.50,
+          packRibbonPrice: 0.80,
+          packBagPrice: 1.20,
+          deliveryPrice: 0.00
+        }
+      },
+      {
+        id: "recipe_beijinho_coco",
+        name: "Beijinho de Coco Artesanal",
+        yieldUnits: 30,
+        profitMargin: 150,
+        updatedAt: new Date().toISOString(),
+        ingredients: [
+          { id: 1, name: "Leite Condensado Moça (1 lata)", packageQty: 395, packagePrice: 6.50, usedQty: 395, unitType: "g" },
+          { id: 2, name: "Coco Ralado Fino Seco (Pacote 1kg)", packageQty: 1000, packagePrice: 30.00, usedQty: 100, unitType: "g" },
+          { id: 3, name: "Manteiga Extra sem Sal (500g)", packageQty: 500, packagePrice: 28.00, usedQty: 30, unitType: "g" },
+          { id: 4, name: "Cravo da Índia e Coco para enrolar", packageQty: 100, packagePrice: 5.00, usedQty: 40, unitType: "g" },
+          { id: 5, name: "Forminhas nº 4 e Tapetinhos (Cento)", packageQty: 100, packagePrice: 5.00, usedQty: 30, unitType: "un" }
+        ],
+        hiddenCosts: {
+          gasTankPrice: 80.00,
+          gasTankHours: 45,
+          gasUsedMinutes: 20,
+          energyHourlyRate: 1.80,
+          energyUsedMinutes: 35,
+          packBoxPrice: 3.50,
+          packRibbonPrice: 0.80,
+          packBagPrice: 1.20,
+          deliveryPrice: 0.00
+        }
+      },
+      {
+        id: "recipe_ninho_nutella",
+        name: "Brigadeiro Ninho com Nutella",
+        yieldUnits: 30,
+        profitMargin: 150,
+        updatedAt: new Date().toISOString(),
+        ingredients: [
+          { id: 1, name: "Leite Condensado Moça (1 lata)", packageQty: 395, packagePrice: 6.50, usedQty: 395, unitType: "g" },
+          { id: 2, name: "Leite em Pó Ninho Integral (Pacote 400g)", packageQty: 400, packagePrice: 18.00, usedQty: 50, unitType: "g" },
+          { id: 3, name: "Nutella Original Pote (650g)", packageQty: 650, packagePrice: 42.00, usedQty: 120, unitType: "g" },
+          { id: 4, name: "Manteiga Extra sem Sal (500g)", packageQty: 500, packagePrice: 28.00, usedQty: 30, unitType: "g" },
+          { id: 5, name: "Forminhas nº 4 e Tapetinhos (Cento)", packageQty: 100, packagePrice: 5.00, usedQty: 30, unitType: "un" }
+        ],
+        hiddenCosts: {
+          gasTankPrice: 80.00,
+          gasTankHours: 45,
+          gasUsedMinutes: 25,
+          energyHourlyRate: 1.80,
+          energyUsedMinutes: 45,
+          packBoxPrice: 3.50,
+          packRibbonPrice: 0.80,
+          packBagPrice: 1.20,
+          deliveryPrice: 0.00
+        }
+      }
+    ];
+
+    // ==========================================
+    // PERSISTÊNCIA & GERENCIAMENTO LOCAL STORAGE
+    // ==========================================
+    function getStoredRecipes() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.error("Erro ao ler localStorage", e);
+      }
+      saveStoredRecipes(DEFAULT_RECIPES);
+      return DEFAULT_RECIPES;
+    }
+
+    function saveStoredRecipes(recipesList) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(recipesList));
+      } catch (e) {
+        console.error("Erro ao salvar no localStorage", e);
+      }
+    }
+
+    function populateSavedRecipesDropdown() {
+      const select = document.getElementById('saved-recipes-select');
+      const recipes = getStoredRecipes();
+      select.innerHTML = '';
+
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = "";
+      defaultOpt.textContent = "▼ Selecione uma receita...";
+      defaultOpt.disabled = true;
+      select.appendChild(defaultOpt);
+
+      recipes.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = `🧁 ${r.name}`;
+        if (r.id === currentRecipeId) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+
+      if (!currentRecipeId) {
+        defaultOpt.selected = true;
+      }
+    }
+
+    function onSelectRecipeChange(recipeId) {
+      if (!recipeId) return;
+      if (isDirty) {
+        const confirmChange = confirm("Você possui alterações não salvas na receita atual. Deseja carregar outra receita e descartar as alterações?");
+        if (!confirmChange) {
+          populateSavedRecipesDropdown();
+          return;
+        }
+      }
+      loadRecipeById(recipeId);
+    }
+
+    function loadRecipeById(recipeId) {
+      const recipes = getStoredRecipes();
+      const target = recipes.find(r => r.id === recipeId);
+      if (!target) {
+        showToast("Receita não encontrada.", "error");
+        return;
+      }
+
+      currentRecipeId = target.id;
+      try {
+        localStorage.setItem(ACTIVE_RECIPE_ID_KEY, currentRecipeId);
+      } catch (e) {}
+
+      document.getElementById('recipe-title-input').value = target.name || 'Receita sem nome';
+      document.getElementById('recipe-yield').value = target.yieldUnits || 30;
+      document.getElementById('profit-margin-input').value = target.profitMargin !== undefined ? target.profitMargin : 150;
+
+      ingredients = (target.ingredients || []).map(item => ({ ...item }));
+      if (ingredients.length === 0) {
+        ingredients.push({ id: Date.now(), name: "", packageQty: "", packagePrice: "", usedQty: "", unitType: "g" });
+      }
+
+      const hidden = target.hiddenCosts || {};
+      document.getElementById('gas-tank-price').value = hidden.gasTankPrice !== undefined ? hidden.gasTankPrice : "80.00";
+      document.getElementById('gas-tank-hours').value = hidden.gasTankHours !== undefined ? hidden.gasTankHours : "45";
+      document.getElementById('gas-used-minutes').value = hidden.gasUsedMinutes !== undefined ? hidden.gasUsedMinutes : "25";
+      document.getElementById('energy-hourly-rate').value = hidden.energyHourlyRate !== undefined ? hidden.energyHourlyRate : "1.80";
+      document.getElementById('energy-used-minutes').value = hidden.energyUsedMinutes !== undefined ? hidden.energyUsedMinutes : "40";
+      document.getElementById('pack-box-price').value = hidden.packBoxPrice !== undefined ? hidden.packBoxPrice : "3.50";
+      document.getElementById('pack-ribbon-price').value = hidden.packRibbonPrice !== undefined ? hidden.packRibbonPrice : "0.80";
+      document.getElementById('pack-bag-price').value = hidden.packBagPrice !== undefined ? hidden.packBagPrice : "1.20";
+      document.getElementById('delivery-price').value = hidden.deliveryPrice !== undefined ? hidden.deliveryPrice : "0.00";
+
+      isDirty = false;
+      updateRecipeStatusPill("Salva", false);
+      populateSavedRecipesDropdown();
+      renderIngredients();
+      calculateHiddenCosts();
+      calculateTotals();
+
+      showToast(`Receita "${target.name}" carregada com sucesso! ✨`, "success");
+    }
+
+    function markRecipeDirty() {
+      isDirty = true;
+      updateRecipeStatusPill("Modificada", true);
+    }
+
+    function updateRecipeStatusPill(text, isUnsaved) {
+      const pill = document.getElementById('recipe-status-pill');
+      if (!pill) return;
+      pill.textContent = text;
+      if (isUnsaved) {
+        pill.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse';
+      } else {
+        pill.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E91E63]/10 text-[#E91E63] border border-[#E91E63]/20';
+      }
+    }
+
+    // ==========================================
+    // SALVAR RECEITA ATUAL
+    // ==========================================
+    function saveCurrentRecipe() {
+      const nameInput = document.getElementById('recipe-title-input');
+      const recipeName = (nameInput.value || '').trim();
+
+      if (!recipeName) {
+        showToast("Por favor, digite um nome para a receita antes de salvar!", "error");
+        nameInput.focus();
+        return;
+      }
+
+      const yieldUnits = parseInt(document.getElementById('recipe-yield').value, 10) || 30;
+      const profitMargin = parseFloat(document.getElementById('profit-margin-input').value) || 150;
+
+      const hiddenCosts = {
+        gasTankPrice: parseFloat(document.getElementById('gas-tank-price').value) || 0,
+        gasTankHours: parseFloat(document.getElementById('gas-tank-hours').value) || 1,
+        gasUsedMinutes: parseFloat(document.getElementById('gas-used-minutes').value) || 0,
+        energyHourlyRate: parseFloat(document.getElementById('energy-hourly-rate').value) || 0,
+        energyUsedMinutes: parseFloat(document.getElementById('energy-used-minutes').value) || 0,
+        packBoxPrice: parseFloat(document.getElementById('pack-box-price').value) || 0,
+        packRibbonPrice: parseFloat(document.getElementById('pack-ribbon-price').value) || 0,
+        packBagPrice: parseFloat(document.getElementById('pack-bag-price').value) || 0,
+        deliveryPrice: parseFloat(document.getElementById('delivery-price').value) || 0
+      };
+
+      const recipes = getStoredRecipes();
+
+      if (currentRecipeId) {
+        const index = recipes.findIndex(r => r.id === currentRecipeId);
+        if (index !== -1) {
+          recipes[index] = {
+            ...recipes[index],
+            name: recipeName,
+            yieldUnits,
+            profitMargin,
+            ingredients: ingredients.map(i => ({ ...i })),
+            hiddenCosts,
+            updatedAt: new Date().toISOString()
+          };
+          saveStoredRecipes(recipes);
+          isDirty = false;
+          updateRecipeStatusPill("Salva", false);
+          populateSavedRecipesDropdown();
+          showToast(`Receita "${recipeName}" atualizada com sucesso! 💕`, "success");
+          return;
+        }
+      }
+
+      const newId = 'recipe_' + Date.now();
+      const newRecipe = {
+        id: newId,
+        name: recipeName,
+        yieldUnits,
+        profitMargin,
+        ingredients: ingredients.map(i => ({ ...i })),
+        hiddenCosts,
+        updatedAt: new Date().toISOString()
+      };
+
+      recipes.unshift(newRecipe);
+      saveStoredRecipes(recipes);
+      currentRecipeId = newId;
+      try {
+        localStorage.setItem(ACTIVE_RECIPE_ID_KEY, currentRecipeId);
+      } catch (e) {}
+
+      isDirty = false;
+      updateRecipeStatusPill("Salva", false);
+      populateSavedRecipesDropdown();
+      showToast(`Nova receita "${recipeName}" salva com sucesso! 🧁✨`, "success");
+    }
+
+    // ==========================================
+    // NOVA RECEITA / LIMPAR CAMPOS
+    // ==========================================
+    function createNewRecipePrompt() {
+      if (isDirty) {
+        const confirmClear = confirm("Você possui dados não salvos na receita atual. Deseja limpar a calculadora e iniciar uma nova receita em branco?");
+        if (!confirmClear) return;
+      }
+
+      currentRecipeId = null;
+      try {
+        localStorage.removeItem(ACTIVE_RECIPE_ID_KEY);
+      } catch (e) {}
+
+      document.getElementById('recipe-title-input').value = "Nova Receita de Doce";
+      document.getElementById('recipe-yield').value = 30;
+      document.getElementById('profit-margin-input').value = 150;
+
+      ingredients = [
+        { id: Date.now(), name: "", packageQty: "", packagePrice: "", usedQty: "", unitType: "g" },
+        { id: Date.now() + 1, name: "", packageQty: "", packagePrice: "", usedQty: "", unitType: "g" }
+      ];
+
+      document.getElementById('gas-tank-price').value = "80.00";
+      document.getElementById('gas-tank-hours').value = "45";
+      document.getElementById('gas-used-minutes').value = "25";
+      document.getElementById('energy-hourly-rate').value = "1.80";
+      document.getElementById('energy-used-minutes').value = "40";
+      document.getElementById('pack-box-price').value = "3.50";
+      document.getElementById('pack-ribbon-price').value = "0.80";
+      document.getElementById('pack-bag-price').value = "1.20";
+      document.getElementById('delivery-price').value = "0.00";
+
+      isDirty = false;
+      updateRecipeStatusPill("Nova", true);
+      populateSavedRecipesDropdown();
+      renderIngredients();
+      calculateHiddenCosts();
+      calculateTotals();
+
+      showToast("Campos limpos! Digite os dados da sua nova receita. ✨", "info");
+
+      setTimeout(() => {
+        const titleInput = document.getElementById('recipe-title-input');
+        titleInput.focus();
+        titleInput.select();
+      }, 100);
+    }
+
+    // ==========================================
+    // MODAL DE GERENCIAMENTO DE RECEITAS
+    // ==========================================
+    function openRecipeManagerModal() {
+      document.getElementById('recipe-modal-backdrop').classList.remove('hidden');
+      document.getElementById('recipe-search-input').value = '';
+      renderRecipeManagerList();
+    }
+
+    function closeRecipeManagerModal() {
+      document.getElementById('recipe-modal-backdrop').classList.add('hidden');
+    }
+
+    function renderRecipeManagerList(filterText = '') {
+      const container = document.getElementById('modal-recipes-list');
+      const recipes = getStoredRecipes();
+      const countEl = document.getElementById('modal-recipe-count');
+      
+      const search = (filterText || '').toLowerCase().trim();
+      const filtered = recipes.filter(r => (r.name || '').toLowerCase().includes(search));
+
+      countEl.textContent = `${recipes.length} receita${recipes.length === 1 ? '' : 's'} salva${recipes.length === 1 ? '' : 's'}`;
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <span class="text-4xl block mb-2">🔍</span>
+            <p class="font-bold text-sm">Nenhuma receita encontrada.</p>
+            <p class="text-xs text-gray-400 mt-1">Crie uma nova receita ou tente outro termo de busca.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(recipe => {
+        const ingCost = (recipe.ingredients || []).reduce((sum, item) => {
+          const cost = getItemCost(item);
+          return sum + (cost !== null ? cost : 0);
+        }, 0);
+
+        const hidden = recipe.hiddenCosts || {};
+        const gasCost = ((hidden.gasTankHours || 1) * 60 > 0) ? ((hidden.gasTankPrice || 0) / ((hidden.gasTankHours || 1) * 60)) * (hidden.gasUsedMinutes || 0) : 0;
+        const energyCost = ((hidden.energyHourlyRate || 0) / 60) * (hidden.energyUsedMinutes || 0);
+        const packCost = (hidden.packBoxPrice || 0) + (hidden.packRibbonPrice || 0) + (hidden.packBagPrice || 0);
+        const deliveryCost = hidden.deliveryPrice || 0;
+        const totalHidden = gasCost + energyCost + packCost + deliveryCost;
+
+        const totalCost = ingCost + totalHidden;
+        const yieldU = recipe.yieldUnits || 30;
+        const unitCost = yieldU > 0 ? totalCost / yieldU : 0;
+        const margin = recipe.profitMargin !== undefined ? recipe.profitMargin : 150;
+        const suggestedUnitPrice = unitCost * (1 + (margin / 100));
+        const suggestedHundredPrice = suggestedUnitPrice * 100;
+
+        const isCurrent = recipe.id === currentRecipeId;
+        const dateFormatted = recipe.updatedAt ? new Date(recipe.updatedAt).toLocaleDateString('pt-BR') : '';
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-2xl border transition-all ${isCurrent ? 'bg-[#FFF5F8] border-[#E91E63] shadow-sm' : 'bg-white hover:bg-gray-50 border-gray-200'}`;
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🧁</span>
+                <h4 class="font-bold text-sm sm:text-base text-[#371B26]">${escapeHtml(recipe.name)}</h4>
+                ${isCurrent ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E91E63] text-white">Ativa</span>' : ''}
+              </div>
+              <div class="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-gray-600">
+                <span class="bg-[#FDECF1] text-[#880E4F] px-2 py-0.5 rounded-md font-semibold">${recipe.ingredients ? recipe.ingredients.length : 0} ingredientes</span>
+                <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-semibold">Rende: ${yieldU} un (20g)</span>
+                <span class="bg-pink-50 text-[#E91E63] px-2 py-0.5 rounded-md font-bold">Custo Un: ${formatCurrency(unitCost)}</span>
+                <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-bold">Venda Sugerida (Cento): ${formatCurrency(suggestedHundredPrice)}</span>
+                ${dateFormatted ? `<span class="text-gray-400 text-[10px]">Salvo em ${dateFormatted}</span>` : ''}
+              </div>
+            </div>
+
+            <!-- Botões de Ação do Card -->
+            <div class="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+              <button 
+                onclick="loadRecipeFromModal('${recipe.id}')" 
+                title="Carregar esta receita na calculadora"
+                class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E91E63] to-[#C71585] text-white font-bold text-xs shadow-2xs hover:opacity-95 transition-all flex items-center gap-1"
+              >
+                <span>⚡</span> Carregar
+              </button>
+              <button 
+                onclick="duplicateRecipe('${recipe.id}')" 
+                title="Duplicar receita"
+                class="px-2.5 py-1.5 rounded-xl bg-[#FDECF1] hover:bg-[#E91E63] text-[#E91E63] hover:text-white font-bold text-xs transition-all flex items-center gap-1"
+              >
+                <span>📋</span>
+              </button>
+              <button 
+                onclick="deleteRecipe('${recipe.id}')" 
+                title="Excluir receita"
+                class="px-2.5 py-1.5 rounded-xl bg-gray-100 hover:bg-red-500 text-gray-600 hover:text-white font-bold text-xs transition-all flex items-center gap-1"
+              >
+                <span>🗑️</span>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function loadRecipeFromModal(recipeId) {
+      closeRecipeManagerModal();
+      loadRecipeById(recipeId);
+    }
+
+    function duplicateRecipe(recipeId) {
+      const recipes = getStoredRecipes();
+      const original = recipes.find(r => r.id === recipeId);
+      if (!original) return;
+
+      const newId = 'recipe_' + Date.now();
+      const copy = {
+        ...JSON.parse(JSON.stringify(original)),
+        id: newId,
+        name: `${original.name} (Cópia)`,
+        updatedAt: new Date().toISOString()
+      };
+
+      recipes.unshift(copy);
+      saveStoredRecipes(recipes);
+      renderRecipeManagerList(document.getElementById('recipe-search-input').value);
+      populateSavedRecipesDropdown();
+      showToast(`Cópia criada: "${copy.name}" ✨`, "success");
+    }
+
+    function deleteRecipe(recipeId) {
+      const recipes = getStoredRecipes();
+      const target = recipes.find(r => r.id === recipeId);
+      if (!target) return;
+
+      if (!confirm(`Tem certeza que deseja excluir permanentemente a receita "${target.name}"?`)) {
+        return;
+      }
+
+      const updated = recipes.filter(r => r.id !== recipeId);
+      saveStoredRecipes(updated);
+
+      if (currentRecipeId === recipeId) {
+        currentRecipeId = null;
+        try { localStorage.removeItem(ACTIVE_RECIPE_ID_KEY); } catch (e) {}
+      }
+
+      renderRecipeManagerList(document.getElementById('recipe-search-input').value);
+      populateSavedRecipesDropdown();
+      showToast(`Receita "${target.name}" excluída.`, "info");
+    }
+
+    // ==========================================
+    // COMPARTILHAMENTO FORMATADO NO WHATSAPP
+    // ==========================================
+    function shareRecipeWhatsApp() {
+      const recipeTitle = (document.getElementById('recipe-title-input').value || 'Receita de Doces').trim();
+      const yieldUnits = parseInt(document.getElementById('recipe-yield').value, 10) || 30;
+      const marginPercent = parseFloat(document.getElementById('profit-margin-input').value) || 150;
+
+      let validIngredients = [];
+      let totalIngCost = 0;
+      ingredients.forEach(item => {
+        const cost = getItemCost(item);
+        if (cost !== null && cost > 0) {
+          validIngredients.push({
+            name: item.name || 'Ingrediente',
+            usedQty: item.usedQty,
+            unitType: item.unitType || 'g',
+            cost: cost
+          });
+          totalIngCost += cost;
+        }
+      });
+
+      const hidden = calculateHiddenCosts();
+
+      const totalRealCost = totalIngCost + hidden.totalHidden;
+      const unitRealCost = yieldUnits > 0 ? totalRealCost / yieldUnits : 0;
+      const suggestedUnitPrice = unitRealCost * (1 + (marginPercent / 100));
+      const profitPerUnit = suggestedUnitPrice - unitRealCost;
+      const suggestedHundredPrice = suggestedUnitPrice * 100;
+
+      let msg = `*🧁 KAU DOCES • DEMONSTRATIVO DE CUSTO & PRECIFICAÇÃO*\n\n`;
+      msg += `*Receita:* ${recipeTitle}\n`;
+      msg += `*Rendimento:* ${yieldUnits} unidades (20g cada)\n\n`;
+
+      msg += `*🥣 Insumos Utilizados:*\n`;
+      if (validIngredients.length > 0) {
+        validIngredients.forEach(ing => {
+          msg += `• ${ing.name}: ${ing.usedQty}${ing.unitType} → ${formatCurrency(ing.cost)}\n`;
+        });
+      } else {
+        msg += `• (Nenhum ingrediente preenchido)\n`;
+      }
+      msg += `👉 *Subtotal Insumos:* ${formatCurrency(totalIngCost)}\n\n`;
+
+      msg += `*💡 Gastos Ocultos & Operacionais:*\n`;
+      msg += `• Gás Proporcional: ${formatCurrency(hidden.gasCost)}\n`;
+      msg += `• Energia Elétrica: ${formatCurrency(hidden.energyCost)}\n`;
+      msg += `• Embalagens & Fitas: ${formatCurrency(hidden.packagingCost)}\n`;
+      if (hidden.deliveryCost > 0) {
+        msg += `• Frete / Entrega: ${formatCurrency(hidden.deliveryCost)}\n`;
+      }
+      msg += `👉 *Subtotal Operacional:* ${formatCurrency(hidden.totalHidden)}\n\n`;
+
+      msg += `*📊 RESUMO CONSOLIDADO:*\n`;
+      msg += `💰 *Custo Total Real:* ${formatCurrency(totalRealCost)}\n`;
+      msg += `🏷️ *Custo Real por Unidade:* ${formatCurrency(unitRealCost)}\n`;
+      msg += `📈 *Margem de Lucro:* ${marginPercent}%\n`;
+      msg += `💵 *Preço Sugerido (Unidade 20g):* ${formatCurrency(suggestedUnitPrice)} (Lucro: ${formatCurrency(profitPerUnit)}/un)\n`;
+      msg += `📦 *Preço Sugerido (Cento 100 un):* ${formatCurrency(suggestedHundredPrice)}\n\n`;
+      msg += `✨ _Kau Doces Artesanal • Doces momentos tornam a vida mais doce_ 💕`;
+
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
+    // ==========================================
+    // SISTEMA DE TOAST NOTIFICATIONS
+    // ==========================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      let bgColor = 'bg-[#371B26] text-white';
+      if (type === 'success') bgColor = 'bg-gradient-to-r from-[#E91E63] to-[#C71585] text-white';
+      if (type === 'error') bgColor = 'bg-red-600 text-white';
+
+      toast.className = `px-4 py-3 rounded-2xl shadow-xl border border-white/20 text-xs sm:text-sm font-bold flex items-center gap-2 fade-in ${bgColor}`;
+      toast.innerHTML = `<span>${type === 'success' ? '💖' : (type === 'error' ? '⚠️' : 'ℹ️')}</span> <span>${escapeHtml(message)}</span>`;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
+    // ==========================================
+    // CONTROLE DE ABAS (TABS)
+    // ==========================================
+    function switchTab(tabKey) {
+      const tabs = ['ingredients', 'hidden', 'summary'];
+      tabs.forEach(t => {
+        const contentEl = document.getElementById(`tab-content-${t}`);
+        const btnEl = document.getElementById(`tab-btn-${t}`);
+        
+        if (t === tabKey) {
+          contentEl.classList.remove('hidden');
+          btnEl.className = 'flex items-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all bg-gradient-to-r from-[#E91E63] to-[#C71585] text-white shadow-sm';
+        } else {
+          contentEl.classList.add('hidden');
+          btnEl.className = 'flex items-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all text-[#880E4F] hover:bg-[#FDECF1]';
+        }
+      });
+      calculateTotals();
+    }
+
+    // ==========================================
+    // CÁLCULO DE INSUMOS & TABELA
+    // ==========================================
+    function getItemCost(item) {
+      const packageQty = parseFloat(item.packageQty);
+      const packagePrice = parseFloat(item.packagePrice);
+      const usedQty = parseFloat(item.usedQty);
+
+      if (isNaN(packageQty) || isNaN(packagePrice) || isNaN(usedQty) || packageQty <= 0 || packagePrice <= 0 || usedQty <= 0) {
+        return null;
+      }
+      return (packagePrice / packageQty) * usedQty;
+    }
+
+    function renderIngredients() {
+      const container = document.getElementById('ingredients-container');
+      container.innerHTML = '';
+
+      ingredients.forEach((item) => {
+        const itemCost = getItemCost(item);
+        const row = document.createElement('div');
+        row.className = 'p-3 rounded-2xl bg-[#FDECF1] border border-[#E91E63]/20 fade-in';
+        
+        const costDisplayHtml = (itemCost !== null && itemCost > 0)
+          ? `<span class="font-black text-[#E91E63] text-xs sm:text-sm">${formatCurrency(itemCost)}</span>`
+          : `<span class="text-gray-400 font-semibold text-xs">-</span>`;
+
+        row.innerHTML = `
+          <div class="grid grid-cols-12 gap-2 items-center">
+            
+            <!-- 1. Ingrediente -->
+            <div class="col-span-12 sm:col-span-4">
+              <label class="block sm:hidden text-[10px] font-bold text-[#880E4F] uppercase mb-1">Ingrediente:</label>
+              <input 
+                type="text" 
+                value="${escapeHtml(item.name)}" 
+                placeholder="Ex: Leite Condensado"
+                class="w-full px-3 py-1.5 text-xs sm:text-sm font-semibold bg-white text-gray-800 rounded-xl border border-[#E91E63]/25"
+                oninput="updateIngredientField(${item.id}, 'name', this.value)"
+              />
+            </div>
+
+            <!-- 2. Embalagem (g/un) -->
+            <div class="col-span-4 sm:col-span-2">
+              <label class="block sm:hidden text-[10px] font-bold text-[#880E4F] uppercase mb-1">Emb. Total:</label>
+              <div class="relative flex items-center">
+                <input 
+                  type="number" 
+                  step="any"
+                  min="0"
+                  value="${item.packageQty !== '' && item.packageQty !== undefined ? item.packageQty : ''}" 
+                  placeholder="395"
+                  class="w-full px-2 py-1.5 text-xs sm:text-sm font-bold text-center bg-white text-[#371B26] rounded-xl border border-[#E91E63]/25"
+                  oninput="updateIngredientField(${item.id}, 'packageQty', this.value)"
+                />
+                <span class="absolute right-2 text-[10px] font-bold text-gray-400 pointer-events-none">${item.unitType || 'g'}</span>
+              </div>
+            </div>
+
+            <!-- 3. Preço Emb. (R$) -->
+            <div class="col-span-4 sm:col-span-2">
+              <label class="block sm:hidden text-[10px] font-bold text-[#880E4F] uppercase mb-1">Preço Emb:</label>
+              <div class="relative flex items-center">
+                <span class="absolute left-1.5 text-[11px] font-bold text-[#E91E63]">R$</span>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  min="0" 
+                  value="${item.packagePrice !== '' && item.packagePrice !== undefined ? item.packagePrice : ''}" 
+                  placeholder="6.50"
+                  class="w-full pl-6 pr-1.5 py-1.5 text-xs sm:text-sm font-bold text-center bg-white text-[#E91E63] rounded-xl border border-[#E91E63]/25"
+                  oninput="updateIngredientField(${item.id}, 'packagePrice', this.value)"
+                />
+              </div>
+            </div>
+
+            <!-- 4. Qtd Gasta -->
+            <div class="col-span-4 sm:col-span-2">
+              <label class="block sm:hidden text-[10px] font-bold text-[#880E4F] uppercase mb-1">Qtd Gasta:</label>
+              <div class="relative flex items-center">
+                <input 
+                  type="number" 
+                  step="any" 
+                  min="0" 
+                  value="${item.usedQty !== '' && item.usedQty !== undefined ? item.usedQty : ''}" 
+                  placeholder="395"
+                  class="w-full px-2 py-1.5 text-xs sm:text-sm font-bold text-center bg-white text-[#371B26] rounded-xl border border-[#E91E63]/25"
+                  oninput="updateIngredientField(${item.id}, 'usedQty', this.value)"
+                />
+                <span class="absolute right-2 text-[10px] font-bold text-gray-400 pointer-events-none">${item.unitType || 'g'}</span>
+              </div>
+            </div>
+
+            <!-- 5. Custo Gasto Centralizado + Botão Excluir -->
+            <div class="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-center gap-2 mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E91E63]/10">
+              <div class="flex items-center justify-center w-full">
+                <span class="block sm:hidden text-[10px] font-bold text-[#880E4F] uppercase mr-2">Custo Gasto:</span>
+                <div id="cost-badge-${item.id}" class="w-full max-w-[95px] py-1.5 px-1 bg-white rounded-xl border border-[#E91E63]/25 text-center shadow-2xs">
+                  ${costDisplayHtml}
+                </div>
+              </div>
+              <button 
+                onclick="removeIngredient(${item.id})" 
+                title="Remover ingrediente"
+                class="w-7 h-7 inline-flex items-center justify-center rounded-xl bg-white hover:bg-[#E91E63] text-[#E91E63] hover:text-white border border-[#E91E63]/30 font-black text-sm transition-all active:scale-95 shadow-2xs shrink-0"
+              >
+                ×
+              </button>
+            </div>
+
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      document.getElementById('ingredient-count-badge').textContent = `${ingredients.length} item${ingredients.length === 1 ? '' : 's'}`;
+      calculateTotals();
+    }
+
+    function escapeHtml(text) {
+      return (text || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function addIngredientRow() {
+      markRecipeDirty();
+      const newId = Date.now();
+      ingredients.push({
+        id: newId,
+        name: "",
+        packageQty: "",
+        packagePrice: "",
+        usedQty: "",
+        unitType: "g"
+      });
+      renderIngredients();
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('#ingredients-container input[type="text"]');
+        if (inputs.length > 0) inputs[inputs.length - 1].focus();
+      }, 50);
+    }
+
+    function removeIngredient(id) {
+      markRecipeDirty();
+      ingredients = ingredients.filter(item => item.id !== id);
+      renderIngredients();
+    }
+
+    function clearAllIngredients() {
+      if (ingredients.length === 0) return;
+      markRecipeDirty();
+      ingredients = [];
+      renderIngredients();
+    }
+
+    function updateIngredientField(id, field, value) {
+      markRecipeDirty();
+      const item = ingredients.find(i => i.id === id);
+      if (item) {
+        item[field] = value;
+        
+        const costBadge = document.getElementById(`cost-badge-${id}`);
+        const itemCost = getItemCost(item);
+        if (costBadge) {
+          if (itemCost !== null && itemCost > 0) {
+            costBadge.innerHTML = `<span class="font-black text-[#E91E63] text-xs sm:text-sm">${formatCurrency(itemCost)}</span>`;
+          } else {
+            costBadge.innerHTML = `<span class="text-gray-400 font-semibold text-xs">-</span>`;
+          }
+        }
+        calculateTotals();
+      }
+    }
+
+    function setMargin(marginVal) {
+      markRecipeDirty();
+      document.getElementById('profit-margin-input').value = marginVal;
+      calculateTotals();
+    }
+
+    // ==========================================
+    // CÁLCULO DOS GASTOS OCULTOS
+    // ==========================================
+    function calculateHiddenCosts() {
+      const gasPrice = parseFloat(document.getElementById('gas-tank-price').value) || 0;
+      const gasHours = parseFloat(document.getElementById('gas-tank-hours').value) || 1;
+      const gasMinutes = parseFloat(document.getElementById('gas-used-minutes').value) || 0;
+      const totalGasMinutes = gasHours * 60;
+      const gasCost = totalGasMinutes > 0 ? (gasPrice / totalGasMinutes) * gasMinutes : 0;
+      
+      document.getElementById('card-gas-cost').textContent = formatCurrency(gasCost);
+      document.getElementById('gas-detail-formula').textContent = `(${gasPrice} ÷ ${totalGasMinutes}min) × ${gasMinutes}min = ${formatCurrency(gasCost)}`;
+
+      const energyRate = parseFloat(document.getElementById('energy-hourly-rate').value) || 0;
+      const energyMinutes = parseFloat(document.getElementById('energy-used-minutes').value) || 0;
+      const energyCost = (energyRate / 60) * energyMinutes;
+      document.getElementById('card-energy-cost').textContent = formatCurrency(energyCost);
+
+      const boxPrice = parseFloat(document.getElementById('pack-box-price').value) || 0;
+      const ribbonPrice = parseFloat(document.getElementById('pack-ribbon-price').value) || 0;
+      const bagPrice = parseFloat(document.getElementById('pack-bag-price').value) || 0;
+      const packagingCost = boxPrice + ribbonPrice + bagPrice;
+      document.getElementById('card-packaging-cost').textContent = formatCurrency(packagingCost);
+
+      const deliveryCost = parseFloat(document.getElementById('delivery-price').value) || 0;
+      document.getElementById('card-delivery-cost').textContent = formatCurrency(deliveryCost);
+
+      const totalHidden = gasCost + energyCost + packagingCost + deliveryCost;
+      document.getElementById('badge-total-hidden-cost').textContent = `Total: ${formatCurrency(totalHidden)}`;
+
+      return {
+        gasCost,
+        energyCost,
+        packagingCost,
+        deliveryCost,
+        totalHidden
+      };
+    }
+
+    // ==========================================
+    // CÁLCULO GERAL CONSOLIDADO
+    // ==========================================
+    function calculateTotals() {
+      const ingredientsCost = ingredients.reduce((sum, item) => {
+        const cost = getItemCost(item);
+        return sum + (cost !== null ? cost : 0);
+      }, 0);
+      
+      const hidden = calculateHiddenCosts();
+      const hiddenCost = hidden.totalHidden;
+
+      const totalRealCost = ingredientsCost + hiddenCost;
+
+      const yieldInput = document.getElementById('recipe-yield');
+      let yieldUnits = parseInt(yieldInput.value, 10);
+      if (isNaN(yieldUnits) || yieldUnits <= 0) yieldUnits = 1;
+
+      const unitRealCost = totalRealCost / yieldUnits;
+
+      const marginInput = document.getElementById('profit-margin-input');
+      let marginPercent = parseFloat(marginInput.value);
+      if (isNaN(marginPercent)) marginPercent = 0;
+
+      const suggestedUnitPrice = unitRealCost * (1 + (marginPercent / 100));
+      const profitPerUnit = suggestedUnitPrice - unitRealCost;
+      const suggestedHundredPrice = suggestedUnitPrice * 100;
+
+      // Painel Lateral
+      document.getElementById('display-ingredients-cost').textContent = formatCurrency(ingredientsCost);
+      document.getElementById('display-hidden-cost').textContent = `+ ${formatCurrency(hiddenCost)}`;
+      document.getElementById('display-total-cost').textContent = formatCurrency(totalRealCost);
+      document.getElementById('display-unit-cost').textContent = formatCurrency(unitRealCost);
+      document.getElementById('yield-summary-text').textContent = `Total ÷ ${yieldUnits} un (20g)`;
+      
+      document.getElementById('display-suggested-unit-price').textContent = formatCurrency(suggestedUnitPrice);
+      document.getElementById('display-profit-per-unit').textContent = `Lucro: ${formatCurrency(profitPerUnit)}/un`;
+      document.getElementById('display-suggested-hundred-price').textContent = formatCurrency(suggestedHundredPrice);
+
+      // Aba de Resumo
+      document.getElementById('summary-tab-ing-cost').textContent = formatCurrency(ingredientsCost);
+      document.getElementById('summary-tab-hidden-cost').textContent = formatCurrency(hiddenCost);
+      document.getElementById('summary-tab-real-cost').textContent = formatCurrency(totalRealCost);
+
+      const tableHundredPrice = 120.00;
+      const tableUnitPrice = tableHundredPrice / 100;
+      
+      let operatingMargin = 0;
+      if (unitRealCost > 0) {
+        operatingMargin = ((tableUnitPrice - unitRealCost) / unitRealCost) * 100;
+      }
+
+      const summaryMarginEl = document.getElementById('summary-margin-text');
+      if (unitRealCost <= 0) {
+        summaryMarginEl.innerHTML = `Adicione ingredientes e gastos para calcular sua margem real.`;
+      } else if (operatingMargin >= 0) {
+        summaryMarginEl.innerHTML = `Você está operando com uma margem líquida real de <span class="underline decoration-2 font-black">${operatingMargin.toFixed(1)}%</span> no Brigadeiro Cento (R$ 120,00).`;
+      } else {
+        summaryMarginEl.innerHTML = `⚠️ <span class="text-red-600 font-black">Alerta de Prejuízo:</span> Seu custo real por unidade (${formatCurrency(unitRealCost)}) supera o preço de tabela (${formatCurrency(tableUnitPrice)}). Margem negativa: ${operatingMargin.toFixed(1)}%.`;
+      }
+    }
+
+    function formatCurrency(val) {
+      return (val || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2
+      });
+    }
+
+    // Fechar modal ao clicar fora
+    document.addEventListener('click', (e) => {
+      const modalBackdrop = document.getElementById('recipe-modal-backdrop');
+      if (e.target === modalBackdrop) {
+        closeRecipeManagerModal();
+      }
+    });
+
+    // ==========================================
+    // INICIALIZAÇÃO AO CARREGAR A PÁGINA
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      const recipes = getStoredRecipes();
+      
+      let initialId = null;
+      try {
+        initialId = localStorage.getItem(ACTIVE_RECIPE_ID_KEY);
+      } catch (e) {}
+
+      if (initialId && recipes.some(r => r.id === initialId)) {
+        loadRecipeById(initialId);
+      } else if (recipes.length > 0) {
+        loadRecipeById(recipes[0].id);
+      } else {
+        createNewRecipePrompt();
+      }
+    });
+  </script>
+</body>
+</html>

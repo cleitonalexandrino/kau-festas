@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kau Festas | Do bolo aos brinquedos, tudo para sua festa</title>
+  <meta name="description" content="Kau Festas: doces artesanais, salgados quentinhos, decoração temática e locação de brinquedos (pula-pula, piscina de bolinhas e mais) em São Paulo." />
+  <meta name="theme-color" content="#E91E63" />
+
+  <!-- Open Graph / Redes Sociais -->
+  <meta property="og:title" content="Kau Festas | Tudo Para Sua Festa Em Um Só Lugar" />
+  <meta property="og:description" content="Do bolo aos brinquedos, tudo para sua comemoração! Buffet artesanal, decorações personalizadas e locações infantis." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="logo.jpg" />
+
+  <!-- Google Fonts: Pacifico, Poppins, Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Firebase Compat SDKs (App, Firestore, Storage) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="catalog-defaults.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- Configuração Customizada do Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              pink: '#E91E63',
+              pinkDark: '#D81B60',
+              pinkDeep: '#AD1457',
+              gold: '#D4AF37',
+              goldLight: '#F5E6BE',
+              goldDark: '#C5A059',
+              pastelPink: '#FFF0F3',
+              pastelLight: '#FDF2F5',
+              choco: '#3E2723',
+              chocoDark: '#2D1810',
+              chocoLight: '#5D4037',
+              whatsapp: '#25D366',
+              whatsappHover: '#20BA56'
+            }
+          },
+          fontFamily: {
+            cursive: ['"Pacifico"', 'cursive'],
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Poppins"', 'sans-serif']
+          },
+          boxShadow: {
+            'sweet': '0 10px 30px -5px rgba(233, 30, 99, 0.18)',
+            'sweet-lg': '0 20px 40px -10px rgba(233, 30, 99, 0.28)',
+            'gold-glow': '0 0 25px rgba(212, 175, 55, 0.4)',
+            'wa-glow': '0 10px 25px -5px rgba(37, 211, 102, 0.5)',
+            'cart-glow': '0 12px 35px -5px rgba(233, 30, 99, 0.35)'
+          },
+          animation: {
+            'float': 'floating 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          },
+          keyframes: {
+            floating: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #3E2723;
+      background-color: #FDF2F5;
+      overflow-x: hidden;
+    }
+
+    .font-pacifico { font-family: 'Pacifico', cursive; }
+    .font-serif-title { font-family: 'Playfair Display', serif; }
+
+    .bg-candy-pattern {
+      background-color: #FDF2F5;
+      background-image: radial-gradient(#F8BBD0 0.85px, transparent 0.85px), radial-gradient(#F8BBD0 0.85px, #FDF2F5 0.85px);
+      background-size: 34px 34px;
+      background-position: 0 0, 17px 17px;
+    }
+
+    .btn-shine {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shine::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg);
+      animation: shineEffect 4s ease-in-out infinite;
+    }
+    @keyframes shineEffect {
+      0%, 70% { left: -60%; }
+      100% { left: 140%; }
+    }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #FFF0F3; }
+    ::-webkit-scrollbar-thumb { background: #F48FB1; border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: #E91E63; }
+  </style>
+</head>
+<body class="selection:bg-brand-pink selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 2. CABEÇALHO & BARRA SUPERIOR (TOP BAR)                                   -->
+  <!-- ========================================================================= -->
+  <aside aria-label="Aviso da loja" class="bg-gradient-to-r from-brand-pinkDark via-brand-pink to-brand-pinkDeep text-white text-xs sm:text-sm py-2 px-4 shadow-sm border-b border-pink-400/30 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 overflow-hidden truncate">
+        <span class="animate-bounce">🎈</span>
+        <span id="site-topbar-text" class="font-medium truncate">
+          Sua festa completa sob encomenda! Doces, salgados, decoração e brinquedos • Garanta sua data com antecedência!
+        </span>
+      </div>
+      <a 
+        id="site-topbar-link" 
+        href="https://wa.me/5511969798162?text=Ol%C3%A1!%20Gostaria%20de%20consultar%20uma%20data%20para%20minha%20festa%20na%20Kau%20Festas." 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="flex-shrink-0 flex items-center gap-1.5 bg-white/20 hover:bg-white text-white hover:text-brand-pinkDeep px-3 py-1 rounded-full text-xs font-bold transition-all duration-200"
+      >
+        <i class="fa-brands fa-whatsapp text-sm text-brand-whatsapp"></i>
+        <span>Chamar no WhatsApp</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- NAVBAR PRINCIPAL -->
+  <header class="bg-white/95 backdrop-blur-md sticky top-[37px] z-40 border-b border-pink-100 shadow-sm transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- LOGO -->
+      <a href="#hero" class="flex items-center gap-3 group flex-shrink-0">
+        <div class="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-brand-gold via-brand-pink to-brand-gold shadow-md group-hover:scale-105 transition-transform duration-300 flex items-center justify-center bg-white">
+          <img 
+            src="logo.jpg" 
+            alt="Kau Festas" 
+            class="w-full h-full object-cover rounded-full" 
+            onerror="this.src='logo.jpg'" 
+          />
+        </div>
+        <div>
+          <span class="font-pacifico text-2xl sm:text-3xl text-brand-pink block leading-none tracking-wide whitespace-nowrap">
+            Kau Festas
+          </span>
+        </div>
+      </a>
+
+      <!-- MENU DESKTOP CENTRALIZADO -->
+      <nav class="hidden lg:flex flex-1 items-center justify-center gap-5 xl:gap-7 font-medium text-sm text-brand-choco whitespace-nowrap">
+        <a href="#hero" class="hover:text-brand-pink transition-colors">Início</a>
+        <a href="javascript:goToCategory('doces')" class="hover:text-brand-pink transition-colors flex items-center gap-1.5">
+          <span>🧁</span> <span>Doces</span>
+        </a>
+        <a href="javascript:goToCategory('salgados')" class="hover:text-brand-pink transition-colors flex items-center gap-1.5">
+          <span>🥐</span> <span>Salgados & Tortas</span>
+        </a>
+        <a href="javascript:goToCategory('decoracoes')" class="hover:text-brand-pink transition-colors flex items-center gap-1.5">
+          <span>🎈</span> <span>Decorações & Kits</span>
+        </a>
+        <a href="javascript:goToCategory('brinquedos')" class="hover:text-brand-pink transition-colors flex items-center gap-1.5 text-brand-pink font-bold">
+          <span>🎪</span> <span>Brinquedos & Locações</span>
+        </a>
+        <a href="#como-encomendar" class="hover:text-brand-pink transition-colors">Como Encomendar</a>
+      </nav>
+
+      <!-- AÇÕES DO TOPO: APENAS ORÇAMENTO + MENU MOBILE (TELEFONE REMOVIDO) -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        
+        <!-- Botão Orçador / Carrinho -->
+        <button 
+          id="nav-cart-btn"
+          onclick="openCartModal()"
+          class="relative p-2.5 sm:px-4 sm:py-2.5 rounded-2xl bg-brand-pastelPink hover:bg-brand-pink text-brand-pink hover:text-white transition-all duration-200 flex items-center gap-2 border border-brand-pink/25 shadow-sm"
+          title="Ver Meu Orçamento de Festa"
+        >
+          <i class="fa-solid fa-cart-shopping text-base sm:text-lg"></i>
+          <span class="text-xs font-bold">Orçamento</span>
+          <span id="nav-cart-badge" class="w-5 h-5 rounded-full bg-brand-pink text-white text-[11px] font-bold flex items-center justify-center">0</span>
+        </button>
+
+        <!-- Elemento invisível para compatibilidade com JS -->
+        <span id="site-header-phone" class="hidden"></span>
+
+        <!-- Botão Menu Mobile -->
+        <button 
+          id="mobile-menu-btn" 
+          onclick="toggleMobileMenu()" 
+          class="lg:hidden p-2 rounded-xl text-brand-choco hover:text-brand-pink hover:bg-pink-50 transition" 
+          aria-label="Abrir menu"
+        >
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- MENU MOBILE RETRÁTIL -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-pink-100 px-6 py-5 shadow-xl transition-all duration-300">
+      <nav class="flex flex-col gap-3 font-medium text-brand-choco text-sm">
+        <a href="#hero" onclick="toggleMobileMenu()" class="py-2 hover:text-brand-pink border-b border-pink-50 flex items-center gap-2">
+          <i class="fa-solid fa-house text-brand-pink w-5"></i> Início
+        </a>
+        <a href="javascript:goToCategory('doces'); toggleMobileMenu();" class="py-2 hover:text-brand-pink border-b border-pink-50 flex items-center gap-2">
+          <span>🧁</span> Doces
+        </a>
+        <a href="javascript:goToCategory('salgados'); toggleMobileMenu();" class="py-2 hover:text-brand-pink border-b border-pink-50 flex items-center gap-2">
+          <span>🥐</span> Salgados & Tortas
+        </a>
+        <a href="javascript:goToCategory('decoracoes'); toggleMobileMenu();" class="py-2 hover:text-brand-pink border-b border-pink-50 flex items-center gap-2">
+          <span>🎈</span> Decorações & Kits Festa
+        </a>
+        <a href="javascript:goToCategory('brinquedos'); toggleMobileMenu();" class="py-2 hover:text-brand-pink border-b border-pink-50 flex items-center gap-2 font-bold text-brand-pink">
+          <span>🎪</span> Locação de Brinquedos (Pula-Pula e mais)
+        </a>
+        <a href="#como-encomendar" onclick="toggleMobileMenu()" class="py-2 hover:text-brand-pink flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-brand-pink w-5"></i> Como Encomendar
+        </a>
+        
+        <div class="pt-3">
+          <a 
+            id="site-header-wa-btn-mobile" 
+            href="https://wa.me/5511969798162?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Kau%20Eventos%20%26%20Festas%20e%20gostaria%20de%20um%20or%C3%A7amento." 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="w-full py-3 bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-md"
+          >
+            <i class="fa-brands fa-whatsapp text-lg"></i>
+            <span>Chamar no WhatsApp</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 3. PRIMEIRA DOBRA (HERO SECTION)                                          -->
+  <!-- ========================================================================= -->
+  <section id="hero" class="relative pt-10 pb-16 md:pt-16 md:pb-24 bg-candy-pattern overflow-hidden border-b border-pink-100">
+    
+    <!-- Elementos Decorativos Flutuantes -->
+    <div class="absolute -top-12 -left-12 w-64 h-64 bg-pink-300/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/2 -right-16 w-80 h-80 bg-brand-gold/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- COLUNA ESQUERDA: CHAMADA PRINCIPAL -->
+        <div class="lg:col-span-7 text-center lg:text-left">
+          
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-brand-pink/30 text-brand-pink text-xs sm:text-sm font-bold shadow-sweet mb-5">
+            <span class="animate-pulse text-base">🎉</span>
+            <span id="site-hero-badge">A Solução Completa Para Sua Comemoração</span>
+          </div>
+
+          <!-- Título H1 -->
+          <h1 id="site-hero-headline" class="font-serif-title font-bold text-3xl sm:text-5xl lg:text-5xl xl:text-6xl text-brand-choco leading-tight tracking-tight mb-5">
+            Do bolo à diversão: a festa completa em um só lugar.
+          </h1>
+
+          <!-- Texto de Apoio / Descritivo -->
+          <p id="site-hero-subtitle" class="text-base sm:text-lg text-brand-chocoLight font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-8">
+            Doces artesanais irresistíveis, salgados quentinhos, decorações temáticas encantadoras e locação de brinquedos para a alegria dos pequenos. Cuidamos de cada detalhe para você só se preocupar em aproveitar!
+          </p>
+
+          <!-- Botões de Ação Hero -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            
+            <a 
+              href="#catalogo" 
+              class="btn-shine w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-pink via-brand-pinkDark to-brand-pinkDeep hover:from-brand-pinkDark hover:to-brand-pinkDeep text-white rounded-2xl font-bold text-base shadow-sweet hover:shadow-sweet-lg transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-3 text-center"
+            >
+              <i class="fa-solid fa-cake-candles text-lg"></i>
+              <span>Ver Cardápio & Serviços</span>
+            </a>
+
+            <a 
+              id="site-hero-wa-btn" 
+              href="https://wa.me/5511969798162?text=Ol%C3%A1!%20Gostaria%20de%20consultar%20minha%20data%20e%20fazer%20um%20or%C3%A7amento%20para%20minha%20festa." 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="w-full sm:w-auto px-7 py-4 bg-white hover:bg-slate-50 text-brand-choco border-2 border-brand-gold/40 hover:border-brand-gold rounded-2xl font-bold text-base shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2.5"
+            >
+              <i class="fa-brands fa-whatsapp text-brand-whatsapp text-xl"></i>
+              <span>Consultar Minha Data</span>
+            </a>
+
+          </div>
+
+          <!-- Micro-garantias / Selos rápidos -->
+          <div class="mt-8 pt-6 border-t border-pink-200/60 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-brand-chocoLight font-semibold">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-shield-heart text-brand-pink text-base"></i>
+              <span>Ingredientes 100% Nobres</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles text-brand-gold text-base"></i>
+              <span>Cenários e Temas Modernos</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-certificate text-emerald-600 text-base"></i>
+              <span>Brinquedos Higienizados</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 4. COLUNA DIREITA: CARD FLUTUANTE DE RESUMO / PERFIL -->
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="relative w-full max-w-md">
+            
+            <!-- Glow de fundo -->
+            <div class="absolute inset-0 bg-gradient-to-tr from-brand-pink/30 via-brand-gold/30 to-pink-300/20 rounded-3xl blur-2xl transform rotate-2"></div>
+
+            <!-- Card Principal -->
+            <div class="relative bg-white/95 backdrop-blur-md rounded-3xl p-7 sm:p-8 shadow-sweet-lg border-2 border-brand-gold/30">
+              
+              <!-- Selo Topo com Logo -->
+              <div class="flex items-center gap-4 pb-6 border-b border-pink-100">
+                <div class="w-16 h-16 rounded-2xl p-1 bg-gradient-to-tr from-brand-gold via-brand-pink to-brand-gold flex-shrink-0 shadow-md">
+                  <img src="logo.jpg" alt="Kau Festas" class="w-full h-full object-cover rounded-xl" onerror="this.src='logo.jpg'" />
+                </div>
+                <div>
+                  <h3 class="font-pacifico text-2xl text-brand-pink leading-tight">Kau Festas</h3>
+                  <p class="text-xs font-semibold text-brand-chocoLight">Doces • Salgados • Decorações • Brinquedos</p>
+                </div>
+              </div>
+
+              <!-- Itens informativos -->
+              <div class="py-6 space-y-4 text-xs sm:text-sm text-brand-choco">
+                
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-brand-pastelLight border border-pink-100">
+                  <span class="text-lg">🏷️</span>
+                  <div>
+                    <span class="font-bold text-brand-choco block">Serviços Completos:</span>
+                    <span class="text-brand-chocoLight">Buffet artesanal, cenografia temática e locações infantis.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-brand-pastelLight border border-pink-100">
+                  <span class="text-lg">🎯</span>
+                  <div>
+                    <span class="font-bold text-brand-choco block">Produção:</span>
+                    <span class="text-brand-chocoLight">100% Artesanal, fresca e personalizada no seu tema.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-brand-pastelLight border border-pink-100">
+                  <span class="text-lg">📅</span>
+                  <div>
+                    <span class="font-bold text-brand-choco block">Garantia de Data:</span>
+                    <span id="site-card-guarantee" class="text-brand-chocoLight">Reserva confirmada mediante 50% de sinal.</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Botão do Card -->
+              <a 
+                id="site-card-wa-btn" 
+                href="https://wa.me/5511969798162?text=Ol%C3%A1!%20Gostaria%20de%20consultar%20a%20disponibilidade%20da%20minha%20data%20com%20a%20Kau%20Festas." 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="w-full py-4 bg-brand-whatsapp hover:bg-brand-whatsappHover text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-wa-glow transition-all duration-200"
+              >
+                <i class="fa-brands fa-whatsapp text-xl"></i>
+                <span>💬 Consultar Minha Data no WhatsApp</span>
+              </a>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- 5. SEÇÃO DE CATEGORIAS & CATÁLOGO DE PRODUTOS                              -->
+  <!-- ========================================================================= -->
+  <section id="catalogo" class="py-16 sm:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Cabeçalho da Seção -->
+      <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 text-brand-pinkDeep text-xs font-bold uppercase tracking-wider mb-3">
+          <i class="fa-solid fa-sparkles text-brand-gold"></i>
+          <span>Nosso Catálogo Especial</span>
+        </div>
+        <h2 class="font-serif-title font-bold text-3xl sm:text-4xl lg:text-5xl text-brand-choco mb-4">
+          Escolha sua Categoria
+        </h2>
+        <p class="text-sm sm:text-base text-brand-chocoLight">
+          Navegue pelos nossos serviços e monte sua festa sob medida:
+        </p>
+      </div>
+
+      <!-- Abas de Filtro de Categoria -->
+      <div class="flex items-center justify-center mb-10 sm:mb-12">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 p-1.5 bg-slate-100 rounded-3xl w-full max-w-4xl border border-slate-200 shadow-inner">
+          
+          <!-- Aba 1: Doces -->
+          <button 
+            id="tab-cat-doces" 
+            onclick="switchCatalogTab('doces')" 
+            class="cat-tab-btn active py-3.5 sm:py-4 px-2 sm:px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-brand-pink text-white shadow-sweet scale-[1.02]"
+          >
+            <span class="text-lg">🧁</span>
+            <span>Doces</span>
+            <span id="tab-count-doces" class="text-[11px] px-2 py-0.5 rounded-full bg-white/25">0</span>
+          </button>
+
+          <!-- Aba 2: Salgados & Tortas -->
+          <button 
+            id="tab-cat-salgados" 
+            onclick="switchCatalogTab('salgados')" 
+            class="cat-tab-btn py-3.5 sm:py-4 px-2 sm:px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-white text-amber-900 hover:bg-amber-50"
+          >
+            <span class="text-lg">🥐</span>
+            <span>Salgados & Tortas</span>
+            <span id="tab-count-salgados" class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">0</span>
+          </button>
+
+          <!-- Aba 3: Decorações & Kits -->
+          <button 
+            id="tab-cat-decoracoes" 
+            onclick="switchCatalogTab('decoracoes')" 
+            class="cat-tab-btn py-3.5 sm:py-4 px-2 sm:px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-white text-purple-900 hover:bg-purple-50"
+          >
+            <span class="text-lg">🎈</span>
+            <span>Decorações & Kits</span>
+            <span id="tab-count-decoracoes" class="text-[11px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-900">0</span>
+          </button>
+
+          <!-- Aba 4: Brinquedos & Locações (NOVO) -->
+          <button 
+            id="tab-cat-brinquedos" 
+            onclick="switchCatalogTab('brinquedos')" 
+            class="cat-tab-btn py-3.5 sm:py-4 px-2 sm:px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-white text-emerald-900 hover:bg-emerald-50"
+          >
+            <span class="text-lg">🎪</span>
+            <span>Brinquedos</span>
+            <span id="tab-count-brinquedos" class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900">0</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Grid de Itens do Catálogo -->
+      <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Renderizado dinamicamente via JavaScript -->
+      </div>
+
+      <!-- Banner de Ajuda / Montagem de Cardápio Personalizado -->
+      <div class="mt-14 bg-gradient-to-r from-pink-50 via-brand-pastelPink to-pink-50 rounded-3xl p-8 border border-pink-200/80 text-center max-w-4xl mx-auto shadow-sm">
+        <h4 class="font-serif-title font-bold text-2xl text-brand-choco mb-2">
+          Não encontrou exatamente o que procura ou quer um tema exclusivo?
+        </h4>
+        <p class="text-sm text-brand-chocoLight max-w-xl mx-auto mb-6">
+          Personalizamos bolos, docinhos finos, temas de cenografia e pacotes de brinquedos de acordo com a sua preferência e espaço da festa!
+        </p>
+        <a 
+          href="https://wa.me/5511969798162?text=Ol%C3%A1!%20Gostaria%20de%20solicitar%20um%20tema%20ou%20or%C3%A7amento%20personalizado%20para%20meu%20evento." 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3.5 bg-brand-pink hover:bg-brand-pinkDark text-white font-bold rounded-2xl shadow-sweet text-sm transition"
+        >
+          <i class="fa-brands fa-whatsapp text-lg"></i>
+          <span>Falar com Nossa Confeiteira / Decoradora</span>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- 6. SEÇÃO "COMO ENCOMENDAR" (PASSO A PASSO)                                -->
+  <!-- ========================================================================= -->
+  <section id="como-encomendar" class="py-16 sm:py-20 bg-brand-pastelPink/60 border-y border-pink-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-brand-pink text-xs font-bold uppercase tracking-wider mb-3 shadow-sm border border-pink-200">
+          <span>📋 Sem Burocracia</span>
+        </div>
+        <h2 class="font-serif-title font-bold text-3xl sm:text-4xl text-brand-choco mb-3">
+          Passo a Passo Simples: Como Encomendar
+        </h2>
+        <p class="text-sm sm:text-base text-brand-chocoLight">
+          Montar sua comemoração nunca foi tão fácil. Veja como funciona:
+        </p>
+      </div>
+
+      <!-- Os 3 Passos -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        
+        <!-- Passo 1 -->
+        <div class="bg-white rounded-3xl p-8 border border-pink-200/80 shadow-sweet relative flex flex-col justify-between hover:-translate-y-1 transition duration-300">
+          <div class="w-14 h-14 rounded-2xl bg-pink-100 text-brand-pink font-bold text-2xl flex items-center justify-center mb-6 shadow-sm">
+            1
+          </div>
+          <div>
+            <h3 class="font-serif-title font-bold text-xl text-brand-choco mb-2">
+              Passo 1: Escolha o que precisa
+            </h3>
+            <p class="text-xs sm:text-sm text-brand-chocoLight leading-relaxed">
+              Selecione docinhos, mini tortinhas, salgados, tema da decoração ou brinquedos para o seu evento. Você pode adicionar ao carrinho ou pedir direto.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-brand-pink font-semibold">
+            <i class="fa-solid fa-check"></i>
+            <span>Buffet, Decoração ou Locações</span>
+          </div>
+        </div>
+
+        <!-- Passo 2 -->
+        <div class="bg-white rounded-3xl p-8 border border-pink-200/80 shadow-sweet relative flex flex-col justify-between hover:-translate-y-1 transition duration-300">
+          <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 font-bold text-2xl flex items-center justify-center mb-6 shadow-sm">
+            2
+          </div>
+          <div>
+            <h3 class="font-serif-title font-bold text-xl text-brand-choco mb-2">
+              Passo 2: Fale Conosco no WhatsApp
+            </h3>
+            <p class="text-xs sm:text-sm text-brand-chocoLight leading-relaxed">
+              Informe a data, o endereço da festa e os itens escolhidos para montarmos seu orçamento na hora com cálculo de frete e instalação.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-amber-700 font-semibold">
+            <i class="fa-solid fa-comment-dots"></i>
+            <span>Atendimento Rápido e Humanizado</span>
+          </div>
+        </div>
+
+        <!-- Passo 3 -->
+        <div class="bg-white rounded-3xl p-8 border-2 border-brand-gold/60 shadow-sweet-lg relative flex flex-col justify-between hover:-translate-y-1 transition duration-300">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-gold to-amber-300 text-brand-choco font-bold text-2xl flex items-center justify-center mb-6 shadow-sm">
+            3
+          </div>
+          <div>
+            <h3 class="font-serif-title font-bold text-xl text-brand-choco mb-2">
+              Passo 3: Data Garantida e Produção
+            </h3>
+            <p class="text-xs sm:text-sm text-brand-chocoLight leading-relaxed">
+              Reserva confirmada mediante 50% de sinal. Deixamos tudo pronto e fresquinho para o seu grande dia, com entrega pontual!
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-brand-goldDark font-semibold">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>Sua Comemoração 100% Assegurada</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CTA Passo a Passo -->
+      <div class="text-center">
+        <a 
+          id="site-steps-wa-btn" 
+          href="https://wa.me/5511969798162?text=Ol%C3%A1!%20Gostaria%20de%20iniciar%20meu%20pedido%20pelo%20WhatsApp." 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="btn-shine inline-flex items-center gap-3 px-8 py-4 bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold rounded-2xl shadow-lg hover:shadow-wa-glow text-base sm:text-lg transition"
+        >
+          <i class="fa-brands fa-whatsapp text-2xl"></i>
+          <span>📲 Iniciar Pedido Agora pelo WhatsApp</span>
+        </a>
+        <p class="text-xs text-brand-chocoLight font-medium mt-3">
+          Atendimento rápido para aniversários, batizados, casamentos e eventos corporativos.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- 7. FAIXA DE BENEFÍCIOS / DIFERENCIAIS (4 PILARES)                         -->
+  <!-- ========================================================================= -->
+  <section class="py-16 bg-white border-b border-pink-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        
+        <!-- Pilar 1 -->
+        <div class="flex items-start gap-4 p-5 rounded-3xl bg-pink-50/70 border border-pink-100 hover:shadow-md transition">
+          <span class="text-3xl">🍓</span>
+          <div>
+            <h4 class="font-bold text-brand-choco text-sm sm:text-base mb-1">Ingredientes Selecionados</h4>
+            <p class="text-xs text-brand-chocoLight leading-relaxed">
+              Doces e tortinhas feitos com chocolate nobre e frutas frescas, sem essências artificiais.
+            </p>
+          </div>
+        </div>
+
+        <!-- Pilar 2 -->
+        <div class="flex items-start gap-4 p-5 rounded-3xl bg-amber-50/70 border border-amber-100 hover:shadow-md transition">
+          <span class="text-3xl">🥐</span>
+          <div>
+            <h4 class="font-bold text-amber-950 text-sm sm:text-base mb-1">Salgados Sempre Fresquinhos</h4>
+            <p class="text-xs text-amber-900/80 leading-relaxed">
+              Massa leve e crocante, recheios fartos e fritos/assados na hora da entrega da sua festa.
+            </p>
+          </div>
+        </div>
+
+        <!-- Pilar 3 -->
+        <div class="flex items-start gap-4 p-5 rounded-3xl bg-purple-50/70 border border-purple-100 hover:shadow-md transition">
+          <span class="text-3xl">🎈</span>
+          <div>
+            <h4 class="font-bold text-purple-950 text-sm sm:text-base mb-1">Decoração Impecável</h4>
+            <p class="text-xs text-purple-900/80 leading-relaxed">
+              Cenários modernos com painéis temáticos, cilindros com capas e arcos orgânicos de balões.
+            </p>
+          </div>
+        </div>
+
+        <!-- Pilar 4 -->
+        <div class="flex items-start gap-4 p-5 rounded-3xl bg-emerald-50/70 border border-emerald-100 hover:shadow-md transition">
+          <span class="text-3xl">🎪</span>
+          <div>
+            <h4 class="font-bold text-emerald-950 text-sm sm:text-base mb-1">Festa 100% Completa</h4>
+            <p class="text-xs text-emerald-900/80 leading-relaxed">
+              Buffet, ambiente temático e diversão infantil sem complicação nem múltiplos fornecedores.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- 8. RODAPÉ (FOOTER)                                                        -->
+  <!-- ========================================================================= -->
+  <footer class="bg-brand-chocoDark text-white pt-14 pb-8 border-t-4 border-brand-gold">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-white/10">
+        
+        <!-- Coluna 1: Marca & Descrição -->
+        <div class="md:col-span-6 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full p-0.5 bg-brand-gold flex items-center justify-center bg-white">
+              <img src="logo.jpg" alt="Kau Festas" class="w-full h-full object-cover rounded-full" onerror="this.src='logo.jpg'" />
+            </div>
+            <div>
+              <span class="font-pacifico text-2xl text-pink-300 block">Kau Festas</span>
+            </div>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed max-w-md">
+            "Do primeiro doce ao último sorriso: tudo para tornar sua festa inesquecível."
+          </p>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs text-brand-goldLight font-medium">
+            <span id="site-footer-guarantee">🔒 Pedidos e datas garantidos mediante 50% de sinal.</span>
+          </div>
+        </div>
+
+        <!-- Coluna 2: Navegação Rápida -->
+        <div class="md:col-span-3 space-y-2">
+          <h4 class="font-serif-title font-bold text-lg text-white mb-3">Serviços</h4>
+          <ul class="space-y-2 text-sm text-slate-300">
+            <li><a href="javascript:goToCategory('doces')" class="hover:text-pink-300 transition">🧁 Doces Artesanais</a></li>
+            <li><a href="javascript:goToCategory('salgados')" class="hover:text-pink-300 transition">🥐 Salgados & Tortas</a></li>
+            <li><a href="javascript:goToCategory('decoracoes')" class="hover:text-pink-300 transition">🎈 Kits Decoração</a></li>
+            <li><a href="javascript:goToCategory('brinquedos')" class="hover:text-pink-300 transition">🎪 Locação de Brinquedos</a></li>
+          </ul>
+        </div>
+
+        <!-- Coluna 3: Contato & Atendimento -->
+        <div class="md:col-span-3 space-y-3">
+          <h4 class="font-serif-title font-bold text-lg text-white mb-3">Atendimento</h4>
+          <p class="text-sm text-slate-300">São Paulo - SP e Região</p>
+          <div class="flex items-center gap-2 text-brand-whatsapp font-bold text-base">
+            <i class="fa-brands fa-whatsapp text-lg"></i>
+            <span id="site-footer-phone">(11) 96979-8162</span>
+          </div>
+          <p class="text-xs text-slate-400">Atendimento sob encomenda de Segunda a Sábado.</p>
+        </div>
+
+      </div>
+
+      <!-- Sub-rodapé -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <p>© 2026 Kau Festas. Todos os direitos reservados.</p>
+        
+        <!-- Acesso Administrativo Discreto -->
+        <a 
+          href="admin.html" 
+          class="text-slate-500 hover:text-slate-300 transition-all text-[11px] inline-flex items-center gap-1.5 opacity-40 hover:opacity-100" 
+          title="Acesso Restrito"
+        >
+          <i class="fa-solid fa-lock text-[10px]"></i>
+          <span>Área Restrita</span>
+        </a>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ========================================================================= -->
+  <!-- BOTÃO FLUTUANTE DE RESUMO DO ORÇAMENTO (CARRINHO FLUTUANTE)               -->
+  <!-- ========================================================================= -->
+  <div id="floating-cart-pill" class="fixed bottom-6 right-6 z-40 hidden">
+    <button 
+      onclick="openCartModal()" 
+      class="btn-shine px-5 py-3.5 bg-brand-pink hover:bg-brand-pinkDark text-white font-bold rounded-full shadow-cart-glow flex items-center gap-3 transform hover:scale-105 transition-all duration-300 border-2 border-white"
+    >
+      <div class="relative">
+        <i class="fa-solid fa-cart-shopping text-lg"></i>
+        <span id="floating-cart-badge" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-brand-gold text-brand-choco text-[10px] font-extrabold flex items-center justify-center">0</span>
+      </div>
+      <div class="text-left">
+        <span class="text-xs block font-normal leading-none opacity-90">Orçamento</span>
+        <span id="floating-cart-total" class="text-sm font-extrabold leading-tight">R$ 0,00</span>
+      </div>
+      <i class="fa-solid fa-chevron-right text-xs ml-1"></i>
+    </button>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- MODAL / DRAWER DE ORÇAMENTO INTERATIVO                                    -->
+  <!-- ========================================================================= -->
+  <div id="cart-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex justify-end transition-opacity">
+    <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden animate-slide-left">
+      
+      <!-- Cabeçalho do Carrinho -->
+      <div class="p-6 bg-gradient-to-r from-brand-pinkDark via-brand-pink to-brand-pinkDeep text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-basket-shopping text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg leading-tight">Orçamento da Sua Festa</h3>
+            <p class="text-xs text-pink-100">Selecione seus itens e envie no WhatsApp</p>
+          </div>
+        </div>
+        <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Lista de Itens do Carrinho -->
+      <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4">
+        <!-- Preenchido dinamicamente via JS -->
+      </div>
+
+      <!-- Rodapé do Carrinho (Formulário Rápido + Finalização) -->
+      <div class="p-6 bg-slate-50 border-t border-slate-200">
+        
+        <!-- Dados do Evento para Orçamento -->
+        <div class="space-y-2.5 mb-4">
+          <label class="block text-xs font-bold text-brand-choco">Seus dados para agilizar o orçamento:</label>
+          <input 
+            type="text" 
+            id="order-client-name" 
+            placeholder="Seu nome" 
+            class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink" 
+          />
+          <div class="grid grid-cols-2 gap-2">
+            <input 
+              type="text" 
+              id="order-event-date" 
+              placeholder="Data da festa (ex: 15/11)" 
+              class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink" 
+            />
+            <input 
+              type="text" 
+              id="order-event-location" 
+              placeholder="Bairro / Cidade" 
+              class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-brand-pink" 
+            />
+          </div>
+        </div>
+
+        <!-- Subtotal -->
+        <div class="flex items-center justify-between py-2 border-t border-slate-200 mb-4">
+          <span class="text-sm font-semibold text-brand-choco">Valor Estimado dos Itens:</span>
+          <span id="cart-subtotal-val" class="text-xl font-extrabold text-brand-pink font-serif-title">R$ 0,00</span>
+        </div>
+
+        <!-- Botão WhatsApp -->
+        <button 
+          onclick="sendCartToWhatsApp()" 
+          class="w-full py-4 bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-md transition"
+        >
+          <i class="fa-brands fa-whatsapp text-xl"></i>
+          <span>Enviar Orçamento Completo no WhatsApp</span>
+        </button>
+
+        <p class="text-[11px] text-center text-slate-500 mt-2">
+          Garantia e reserva da data confirmadas mediante 50% de sinal.
+        </p>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT DE SINCRONIZAÇÃO E CATÁLOGO                                      -->
+  <!-- ========================================================================= -->
+  <script>
+    const DEFAULT_PRODUCTS = window.KAU_DEFAULT_PRODUCTS || [];
+    const DEFAULT_SETTINGS = window.KAU_DEFAULT_SETTINGS || {
+      headline: 'Do bolo à diversão: a festa completa em um só lugar.',
+      subtitle: 'Doces artesanais irresistíveis, salgados quentinhos, decorações temáticas encantadoras e locação de brinquedos para a alegria dos pequenos. Cuidamos de cada detalhe para você só se preocupar em aproveitar!',
+      phoneDisplay: '(11) 96979-8162',
+      phoneRaw: '5511969798162',
+      topbarText: '🎈 Sua festa completa sob encomenda! Doces, salgados, decoração e brinquedos • Garanta sua data com antecedência!',
+      guaranteeText: '🔒 Pedidos e datas garantidos mediante 50% de sinal.'
+    };
+
+    let activeTab = 'doces';
+    let cart = [];
+
+    // Recupera os produtos atuais (Nuvem ou Local)
+    async function loadSiteProducts() {
+      let prods = null;
+      if (window.KauFirebase && typeof window.KauFirebase.fetchProducts === 'function') {
+        prods = await window.KauFirebase.fetchProducts(DEFAULT_PRODUCTS);
+      }
+      if (!prods || !prods.length) {
+        try {
+          const local = localStorage.getItem('kau_products');
+          if (local) prods = JSON.parse(local);
+        } catch (e) {}
+      }
+      if (!prods || !prods.length) {
+        prods = DEFAULT_PRODUCTS;
+      }
+
+      // Migração automática de mini tortinhas para categoria salgados e atualização das fotos dos Kits de Decoração
+      let changed = false;
+      prods.forEach(p => {
+        if (p.id === 'doce-tortinhas' && p.category === 'doces') {
+          p.category = 'salgados';
+          changed = true;
+        }
+        if (p.id === 'decor-kit-p' && p.image !== 'decor_kit_p.jpg') {
+          p.image = 'decor_kit_p.jpg';
+          changed = true;
+        }
+        if (p.id === 'decor-kit-m' && p.image !== 'decor_kit_m.jpg') {
+          p.image = 'decor_kit_m.jpg';
+          changed = true;
+        }
+      });
+      if (changed) {
+        try {
+          localStorage.setItem('kau_products', JSON.stringify(prods));
+        } catch (e) {}
+      }
+
+      return prods;
+    }
+
+    // Recupera as configurações de texto do site
+    async function loadSiteSettings() {
+      let cfg = DEFAULT_SETTINGS;
+      if (window.KauFirebase && typeof window.KauFirebase.fetchSettings === 'function') {
+        cfg = await window.KauFirebase.fetchSettings(DEFAULT_SETTINGS);
+      } else {
+        try {
+          const local = localStorage.getItem('kau_site_settings');
+          if (local) {
+            const parsed = JSON.parse(local);
+            if (parsed.headline === 'Sua festa completa, do buffet à diversão!') {
+              parsed.headline = DEFAULT_SETTINGS.headline;
+              localStorage.setItem('kau_site_settings', JSON.stringify(parsed));
+            }
+            cfg = Object.assign({}, DEFAULT_SETTINGS, parsed);
+          }
+        } catch (e) {}
+      }
+      return cfg;
+    }
+
+    // Aplica os textos dinâmicos na página
+    async function applySiteSettings() {
+      const cfg = await loadSiteSettings();
+
+      if (document.getElementById('site-hero-headline')) {
+        document.getElementById('site-hero-headline').textContent = cfg.headline || DEFAULT_SETTINGS.headline;
+      }
+      if (document.getElementById('site-hero-subtitle')) {
+        document.getElementById('site-hero-subtitle').textContent = cfg.subtitle || DEFAULT_SETTINGS.subtitle;
+      }
+      if (document.getElementById('site-topbar-text')) {
+        document.getElementById('site-topbar-text').textContent = cfg.topbarText || DEFAULT_SETTINGS.topbarText;
+      }
+      if (document.getElementById('site-header-phone')) {
+        document.getElementById('site-header-phone').textContent = cfg.phoneDisplay || DEFAULT_SETTINGS.phoneDisplay;
+      }
+      if (document.getElementById('site-footer-phone')) {
+        document.getElementById('site-footer-phone').textContent = cfg.phoneDisplay || DEFAULT_SETTINGS.phoneDisplay;
+      }
+      if (document.getElementById('site-footer-guarantee')) {
+        document.getElementById('site-footer-guarantee').textContent = cfg.guaranteeText || DEFAULT_SETTINGS.guaranteeText;
+      }
+      if (document.getElementById('site-card-guarantee')) {
+        document.getElementById('site-card-guarantee').textContent = cfg.guaranteeText || DEFAULT_SETTINGS.guaranteeText;
+      }
+
+      // Links WhatsApp globais
+      const rawPhone = cfg.phoneRaw || DEFAULT_SETTINGS.phoneRaw;
+      const baseMsg = encodeURIComponent('Olá! Vim pelo site da Kau Festas e gostaria de consultar informações para o meu evento.');
+      const waUrl = `https://wa.me/${rawPhone}?text=${baseMsg}`;
+
+      const waLinks = [
+        'site-topbar-link', 'site-header-wa-btn', 'site-header-wa-btn-mobile',
+        'site-hero-wa-btn', 'site-card-wa-btn', 'site-steps-wa-btn'
+      ];
+      waLinks.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.href = waUrl;
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. NAVEGAÇÃO ENTRE ABAS DO CATÁLOGO
+    // -------------------------------------------------------------------------
+    function goToCategory(cat) {
+      switchCatalogTab(cat);
+      const target = document.getElementById('catalogo');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function switchCatalogTab(tabName) {
+      activeTab = tabName;
+
+      const tabs = [
+        { id: 'tab-cat-doces', name: 'doces', bg: 'bg-brand-pink text-white shadow-sweet scale-[1.02]', default: 'bg-white text-brand-choco hover:bg-pink-50' },
+        { id: 'tab-cat-salgados', name: 'salgados', bg: 'bg-amber-800 text-white shadow-lg scale-[1.02]', default: 'bg-white text-amber-900 hover:bg-amber-50' },
+        { id: 'tab-cat-decoracoes', name: 'decoracoes', bg: 'bg-purple-800 text-white shadow-lg scale-[1.02]', default: 'bg-white text-purple-900 hover:bg-purple-50' },
+        { id: 'tab-cat-brinquedos', name: 'brinquedos', bg: 'bg-emerald-700 text-white shadow-lg scale-[1.02]', default: 'bg-white text-emerald-900 hover:bg-emerald-50' }
+      ];
+
+      tabs.forEach(t => {
+        const el = document.getElementById(t.id);
+        if (el) {
+          if (t.name === tabName) {
+            el.className = `cat-tab-btn active py-3.5 sm:py-4 px-2 sm:px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${t.bg}`;
+          } else {
+            el.className = `cat-tab-btn py-3.5 sm:py-4 px-2 sm:px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${t.default}`;
+          }
+        }
+      });
+
+      renderCatalog();
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. RENDERIZAÇÃO DO CATÁLOGO DE PRODUTOS
+    // -------------------------------------------------------------------------
+    async function renderCatalog() {
+      const allProds = await loadSiteProducts();
+      const cfg = await loadSiteSettings();
+      const rawPhone = cfg.phoneRaw || DEFAULT_SETTINGS.phoneRaw;
+      const grid = document.getElementById('catalog-grid');
+
+      // Atualiza os contadores das abas
+      const docesCount = allProds.filter(p => p.category === 'doces' && p.active !== false).length;
+      const salgadosCount = allProds.filter(p => p.category === 'salgados' && p.active !== false).length;
+      const decorCount = allProds.filter(p => p.category === 'decoracoes' && p.active !== false).length;
+      const brinquedosCount = allProds.filter(p => p.category === 'brinquedos' && p.active !== false).length;
+
+      if (document.getElementById('tab-count-doces')) document.getElementById('tab-count-doces').textContent = docesCount;
+      if (document.getElementById('tab-count-salgados')) document.getElementById('tab-count-salgados').textContent = salgadosCount;
+      if (document.getElementById('tab-count-decoracoes')) document.getElementById('tab-count-decoracoes').textContent = decorCount;
+      if (document.getElementById('tab-count-brinquedos')) document.getElementById('tab-count-brinquedos').textContent = brinquedosCount;
+
+      let filtered = allProds.filter(p => p.active !== false && p.category === activeTab);
+
+      if (!filtered.length) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16 bg-brand-pastelPink/50 rounded-3xl border border-pink-200">
+            <span class="text-4xl block mb-2">🎈</span>
+            <p class="text-sm font-semibold text-brand-choco">Nenhum item ativo cadastrado nesta categoria no momento.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+        const isHighlight = item.badge === 'Especialidade' || item.badge === 'Mais Vendido' || item.badge === 'Super Promoção' || item.badge === 'Mais Pedido';
+        const cardBorder = isHighlight ? 'border-2 border-brand-gold shadow-sweet-lg' : 'border-2 border-pink-100 shadow-sweet';
+        const cardBg = isHighlight ? 'bg-gradient-to-b from-[#FFF5F7] to-white' : 'bg-white';
+
+        const badgeHtml = item.badge && item.badge !== 'none'
+          ? `<span class="inline-block ${isHighlight ? 'bg-brand-goldDark' : 'bg-brand-pink'} text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">${item.badge}</span>`
+          : '';
+
+        // Formatação limpa de descrição
+        let descriptionHtml = '';
+        if (item.description) {
+          const lines = item.description.split(/[\n;]+/).map(l => l.trim()).filter(Boolean);
+          if (lines.length > 1) {
+            descriptionHtml = '<div class="space-y-1.5 text-xs text-brand-choco mb-4">' +
+              lines.slice(0, 4).map(l => `<div class="flex items-start gap-1.5"><span class="text-brand-pink text-xs mt-0.5">♥</span><span class="leading-relaxed">${l.replace(/^[\u2022\-\*]+\s*/, '')}</span></div>`).join('') +
+              '</div>';
+          } else {
+            descriptionHtml = `<p class="text-xs text-brand-choco leading-relaxed mb-4">${item.description}</p>`;
+          }
+        }
+
+        const waCustomText = encodeURIComponent(`Olá! Gostaria de consultar a disponibilidade do item *${item.name}* (${item.price}) que vi no site da Kau Festas.`);
+        const waProductUrl = `https://wa.me/${rawPhone}?text=${waCustomText}`;
+
+        return `
+          <div class="${cardBg} ${cardBorder} rounded-3xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group">
+            
+            <div>
+              <!-- Imagem do Produto -->
+              <div class="relative w-full h-56 bg-slate-50 overflow-hidden flex items-center justify-center">
+                <img 
+                  src="${item.image || 'logo.jpg'}" 
+                  alt="${item.name}" 
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  onerror="this.src='logo.jpg'"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute top-3 left-3">
+                  ${badgeHtml}
+                </div>
+                ${item.sizes ? `
+                  <div class="absolute bottom-2.5 left-2.5 right-2.5 pointer-events-none">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium max-w-full truncate shadow-sm">
+                      <i class="fa-solid fa-circle-info text-brand-gold text-[10px]"></i>
+                      <span class="truncate">${item.sizes}</span>
+                    </span>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- Conteúdo do Card -->
+              <div class="p-6 pb-2">
+                <h3 class="font-serif-title font-bold text-xl text-brand-choco mb-2 group-hover:text-brand-pink transition-colors">
+                  ${item.name}
+                </h3>
+
+                <div class="bg-brand-pastelLight rounded-2xl p-3.5 border border-pink-100 mb-4">
+                  ${descriptionHtml}
+                </div>
+
+                <!-- Preço em Destaque -->
+                <div class="bg-pink-50/80 rounded-2xl p-3 border border-brand-pink/20 text-center mb-4">
+                  <span class="text-[10px] uppercase font-bold text-brand-chocoLight block tracking-wider">Valor / Orçamento</span>
+                  <div class="text-lg sm:text-xl font-bold text-brand-pink font-serif-title">
+                    ${item.price}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botões de Ação do Card (WhatsApp Direto + Adicionar ao Orçamento) -->
+            <div class="p-6 pt-0 space-y-2">
+              <button 
+                onclick="addToCart('${item.id}')"
+                class="w-full py-3 bg-brand-pastelPink hover:bg-brand-pink text-brand-pink hover:text-white font-bold rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 border border-brand-pink/30 shadow-sm transition-all duration-200"
+              >
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>Adicionar ao Meu Orçamento</span>
+              </button>
+
+              <a 
+                href="${waProductUrl}" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="w-full py-3 bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-wa-glow transition-all duration-200"
+              >
+                <i class="fa-brands fa-whatsapp text-base"></i>
+                <span>Pedir este no WhatsApp</span>
+              </a>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. CARRINHO / ORÇADOR DE FESTA INTERATIVO
+    // -------------------------------------------------------------------------
+    async function addToCart(productId) {
+      const allProds = await loadSiteProducts();
+      const product = allProds.find(p => p.id === productId);
+      if (!product) return;
+
+      const existingIndex = cart.findIndex(item => item.id === productId);
+      if (existingIndex >= 0) {
+        cart[existingIndex].qty += 1;
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          category: product.category,
+          image: product.image,
+          qty: 1
+        });
+      }
+
+      updateCartUI();
+      showAddedToast(product.name);
+    }
+
+    function changeCartItemQty(productId, delta) {
+      const idx = cart.findIndex(item => item.id === productId);
+      if (idx >= 0) {
+        cart[idx].qty += delta;
+        if (cart[idx].qty <= 0) {
+          cart.splice(idx, 1);
+        }
+      }
+      updateCartUI();
+    }
+
+    function removeCartItem(productId) {
+      cart = cart.filter(item => item.id !== productId);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
+      
+      // Atualiza badges
+      const navBadge = document.getElementById('nav-cart-badge');
+      const floatBadge = document.getElementById('floating-cart-badge');
+      const floatPill = document.getElementById('floating-cart-pill');
+
+      if (navBadge) navBadge.textContent = totalCount;
+      if (floatBadge) floatBadge.textContent = totalCount;
+
+      if (floatPill) {
+        if (totalCount > 0) {
+          floatPill.classList.remove('hidden');
+        } else {
+          floatPill.classList.add('hidden');
+        }
+      }
+
+      renderCartItems();
+    }
+
+    function renderCartItems() {
+      const container = document.getElementById('cart-items-container');
+      const subtotalEl = document.getElementById('cart-subtotal-val');
+      const floatTotal = document.getElementById('floating-cart-total');
+
+      if (!container) return;
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 text-slate-400">
+            <i class="fa-solid fa-basket-shopping text-5xl mb-3 text-pink-200"></i>
+            <p class="text-sm font-semibold text-brand-choco">Seu orçamento ainda está vazio.</p>
+            <p class="text-xs text-slate-500 mt-1">Navegue pelas abas acima e clique em "Adicionar ao Orçamento".</p>
+          </div>
+        `;
+        if (subtotalEl) subtotalEl.textContent = 'R$ 0,00';
+        if (floatTotal) floatTotal.textContent = 'R$ 0,00';
+        return;
+      }
+
+      // Calcula soma estimada
+      let estimatedSum = 0;
+      cart.forEach(item => {
+        // Tenta extrair valor numérico do preço
+        const match = item.price.match(/R\$\s*([\d\.,]+)/i);
+        if (match) {
+          const num = parseFloat(match[1].replace('.', '').replace(',', '.'));
+          if (!isNaN(num)) {
+            estimatedSum += num * item.qty;
+          }
+        }
+      });
+
+      const formattedTotal = estimatedSum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      if (subtotalEl) subtotalEl.textContent = formattedTotal;
+      if (floatTotal) floatTotal.textContent = formattedTotal;
+
+      container.innerHTML = cart.map(item => `
+        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="${item.image || 'logo.jpg'}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 flex-shrink-0" onerror="this.src='logo.jpg'" />
+            <div class="min-w-0">
+              <h5 class="text-xs font-bold text-brand-choco truncate">${item.name}</h5>
+              <span class="text-[11px] text-brand-pink font-semibold">${item.price}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+            <div class="flex items-center border border-slate-300 rounded-xl bg-white overflow-hidden shadow-sm">
+              <button onclick="changeCartItemQty('${item.id}', -1)" class="w-7 h-7 flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-slate-100 transition">-</button>
+              <span class="w-6 text-center text-xs font-bold text-brand-choco">${item.qty}</span>
+              <button onclick="changeCartItemQty('${item.id}', 1)" class="w-7 h-7 flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-slate-100 transition">+</button>
+            </div>
+            <button onclick="removeCartItem('${item.id}')" class="text-slate-400 hover:text-red-500 p-1.5 transition" title="Remover item">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openCartModal() {
+      const modal = document.getElementById('cart-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        renderCartItems();
+      }
+    }
+
+    function closeCartModal() {
+      const modal = document.getElementById('cart-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    async function sendCartToWhatsApp() {
+      if (cart.length === 0) {
+        alert('Adicione ao menos um item ao seu orçamento antes de enviar.');
+        return;
+      }
+
+      const cfg = await loadSiteSettings();
+      const rawPhone = cfg.phoneRaw || DEFAULT_SETTINGS.phoneRaw;
+      const clientName = document.getElementById('order-client-name')?.value.trim() || 'Não informado';
+      const eventDate = document.getElementById('order-event-date')?.value.trim() || 'A definir';
+      const eventLoc = document.getElementById('order-event-location')?.value.trim() || 'A definir';
+
+      let msg = `*🎉 SOLICITAÇÃO DE ORÇAMENTO - KAU FESTAS*\n\n`;
+      msg += `*Cliente:* ${clientName}\n`;
+      msg += `*Data da Festa:* ${eventDate}\n`;
+      msg += `*Local/Bairro:* ${eventLoc}\n\n`;
+      msg += `*ITENS ESCOLHIDOS:*\n`;
+
+      let totalEstimado = 0;
+      cart.forEach((item, idx) => {
+        msg += `${idx + 1}. ${item.qty}x *${item.name}* (${item.price})\n`;
+        const match = item.price.match(/R\$\s*([\d\.,]+)/i);
+        if (match) {
+          const num = parseFloat(match[1].replace('.', '').replace(',', '.'));
+          if (!isNaN(num)) totalEstimado += num * item.qty;
+        }
+      });
+
+      if (totalEstimado > 0) {
+        msg += `\n*Valor Estimado:* ${totalEstimado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n`;
+      }
+
+      msg += `\nOlá, gostaria de verificar a disponibilidade da minha data e saber os detalhes de entrega e montagem!`;
+
+      const waUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    function showAddedToast(productName) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-24 right-6 z-50 bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-slate-700 animate-bounce';
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i><span><strong>${productName}</strong> adicionado ao orçamento!</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    // Inicialização ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      applySiteSettings();
+      renderCatalog();
+    });
+  </script>
+
+</body>
+</html>
