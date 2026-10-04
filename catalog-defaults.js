@@ -10,6 +10,8 @@
 (function(window) {
   'use strict';
 
+  window.KAU_CATALOG_VERSION = '20261004_v2';
+
   window.KAU_DEFAULT_PRODUCTS = [
     // -----------------------------------------------------------------------
     // 1. DOCES ARTESANAIS
@@ -103,7 +105,7 @@
       sizes: '100 unidades (10g a 20g cada)',
       description: 'Coxinhas crocantes de frango desfiado, Bolinhas de queijo cremosas com orégano, Kibe recheado artesanal e Risoles de presunto e queijo fritos na hora do seu evento.',
       badge: 'Mais Vendido',
-      image: 'cardapio.jpg',
+      image: 'salgado_cento_fritos.jpg',
       active: true
     },
     {
@@ -114,7 +116,7 @@
       sizes: '100 unidades assadas na hora',
       description: 'Mini esfihas abertas e fechadas de carne nobre, empadinhas cremosas de palmito e frango, e folhadinhos delicados de peito de peru com ricota.',
       badge: 'Especialidade',
-      image: 'cardapio.jpg',
+      image: 'salgado_assados_folhados.jpg',
       active: true
     },
     {
@@ -125,7 +127,7 @@
       sizes: 'Mix com 4 sabores à sua escolha',
       description: 'Monte sua combinação ideal entre opções fritas e assadas. Produzidos com massa leve, sem excesso de gordura e entregues quentinhos para a sua festa.',
       badge: 'Favorito',
-      image: 'cardapio.jpg',
+      image: 'salgado_festa_mista.jpg',
       active: true
     },
     {
@@ -136,7 +138,7 @@
       sizes: 'Massa crocante amanteigada que derrete na boca',
       description: 'Minitortinhas artesanais com cremes aveludados nos sabores: Limão Fresco com raspas e Maracujá com geleia natural e sementes crocantes. Ideais para aniversários e casamentos.',
       badge: 'Novidade',
-      image: 'doce_mini_tortinhas.jpg',
+      image: 'salgado_mini_tortinhas.jpg',
       active: true
     },
 

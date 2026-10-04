@@ -24,12 +24,16 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <!-- Firebase Compat SDKs (App, Firestore, Storage) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-  <script src="catalog-defaults.js"></script>
-  <script src="firebase-config.js"></script>
+  <script src="catalog-defaults.js?v=20261004_v2"></script>
+  <script src="firebase-config.js?v=20261004_v2"></script>
 
   <!-- Configuração Customizada do Tailwind -->
   <script>
@@ -854,29 +858,67 @@
     let activeTab = 'doces';
     let cart = [];
 
-    // Recupera os produtos atuais (Nuvem ou Local)
+    // Recupera os produtos atuais (Nuvem ou Local) com controle de versão para invalidar cache de celulares
     async function loadSiteProducts() {
+      const CATALOG_VERSION = window.KAU_CATALOG_VERSION || '20261004_v2';
       let prods = null;
-      if (window.KauFirebase && typeof window.KauFirebase.fetchProducts === 'function') {
-        prods = await window.KauFirebase.fetchProducts(DEFAULT_PRODUCTS);
-      }
-      if (!prods || !prods.length) {
+
+      // 1. Tenta buscar do Firebase Firestore se estiver configurado na nuvem
+      if (window.KauFirebase && typeof window.KauFirebase.fetchProducts === 'function' && window.KauFirebase.isConfigured()) {
         try {
-          const local = localStorage.getItem('kau_products');
-          if (local) prods = JSON.parse(local);
-        } catch (e) {}
-      }
-      if (!prods || !prods.length) {
-        prods = DEFAULT_PRODUCTS;
+          prods = await window.KauFirebase.fetchProducts(DEFAULT_PRODUCTS);
+        } catch (e) {
+          console.warn('Erro ao buscar do Firebase:', e);
+        }
       }
 
-      // Migração automática de mini tortinhas para categoria salgados e atualização das fotos dos Kits de Decoração
+      // 2. Se não veio da nuvem, verifica cache local mas valida a versão do catálogo
+      if (!prods || !prods.length) {
+        try {
+          const savedVer = localStorage.getItem('kau_catalog_version');
+          // Se a versão do celular for mais antiga que a do catálogo atualizado, reseta para os padrões novos
+          if (savedVer === CATALOG_VERSION) {
+            const local = localStorage.getItem('kau_products');
+            if (local) prods = JSON.parse(local);
+          } else {
+            console.info('Catálogo atualizado detectado. Renovando dados locais para a versão:', CATALOG_VERSION);
+            localStorage.removeItem('kau_products');
+          }
+        } catch (e) {}
+      }
+
+      // 3. Fallback para os produtos padrão oficiais
+      if (!prods || !prods.length) {
+        prods = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+      }
+
+      // 4. Migração e correção automática de imagens legadas / cacheadas no navegador
       let changed = false;
       prods.forEach(p => {
-        if (p.id === 'doce-tortinhas' && p.category === 'doces') {
-          p.category = 'salgados';
+        // Migração de fotos de salgados que estavam com cardapio.jpg (foto de brigadeiro)
+        if (p.id === 'salgado-1' && (p.image === 'cardapio.jpg' || !p.image || p.image.includes('cardapio'))) {
+          p.image = 'salgado_cento_fritos.jpg';
           changed = true;
         }
+        if (p.id === 'salgado-2' && (p.image === 'cardapio.jpg' || !p.image || p.image.includes('cardapio'))) {
+          p.image = 'salgado_assados_folhados.jpg';
+          changed = true;
+        }
+        if (p.id === 'salgado-3' && (p.image === 'cardapio.jpg' || !p.image || p.image.includes('cardapio'))) {
+          p.image = 'salgado_festa_mista.jpg';
+          changed = true;
+        }
+        if (p.id === 'doce-tortinhas') {
+          if (p.category === 'doces') {
+            p.category = 'salgados';
+            changed = true;
+          }
+          if (p.image === 'doce_mini_tortinhas.jpg' || p.image === 'cardapio.jpg' || !p.image) {
+            p.image = 'salgado_mini_tortinhas.jpg';
+            changed = true;
+          }
+        }
+        // Migração de decorações
         if (p.id === 'decor-kit-p' && p.image !== 'decor_kit_p.jpg') {
           p.image = 'decor_kit_p.jpg';
           changed = true;
@@ -886,11 +928,14 @@
           changed = true;
         }
       });
-      if (changed) {
-        try {
+
+      // 5. Salva no localStorage com a versão carimbada
+      try {
+        localStorage.setItem('kau_catalog_version', CATALOG_VERSION);
+        if (changed || !localStorage.getItem('kau_products')) {
           localStorage.setItem('kau_products', JSON.stringify(prods));
-        } catch (e) {}
-      }
+        }
+      } catch (e) {}
 
       return prods;
     }

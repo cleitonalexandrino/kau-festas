@@ -18,13 +18,17 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <!-- Firebase Compat SDKs (App, Firestore, Storage, Auth) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="catalog-defaults.js"></script>
-  <script src="firebase-config.js"></script>
+  <script src="catalog-defaults.js?v=20261004_v2"></script>
+  <script src="firebase-config.js?v=20261004_v2"></script>
 
   <script>
     tailwind.config = {
@@ -656,7 +660,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             
             <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
               <div>
@@ -669,6 +673,21 @@
               >
                 <i class="fa-solid fa-download"></i>
                 <span>Baixar Backup (JSON)</span>
+              </button>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-pink-200 bg-pink-50/50 flex flex-col justify-between">
+              <div>
+                <div class="inline-block px-2 py-0.5 rounded bg-brand-pink text-white text-[10px] font-bold uppercase mb-1">Recomendado p/ Web</div>
+                <h4 class="font-bold text-sm text-brand-choco mb-1">Publicar no Site (Celular & PC)</h4>
+                <p class="text-xs text-slate-500 mb-4">Gera o arquivo <strong>catalog-defaults.js</strong> atualizado com todas as alterações para subir na hospedagem e atualizar imediatamente todos os celulares.</p>
+              </div>
+              <button 
+                onclick="exportCatalogDefaultsJS()" 
+                class="w-full py-2.5 bg-brand-pink hover:bg-brand-pinkDark text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition"
+              >
+                <i class="fa-solid fa-file-code"></i>
+                <span>Baixar catalog-defaults.js</span>
               </button>
             </div>
 
@@ -898,11 +917,15 @@
               <button type="button" onclick="selectQuickImage('decor_kit_p.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Decor P</button>
               <button type="button" onclick="selectQuickImage('decor_kit_m.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Decor M</button>
               <button type="button" onclick="selectQuickImage('decor_kit_g.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🎈 Decor G</button>
+              <button type="button" onclick="selectQuickImage('salgado_cento_fritos.jpg')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold">🥐 Salgados Fritos</button>
+              <button type="button" onclick="selectQuickImage('salgado_assados_folhados.jpg')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold">🥐 Salgados Assados</button>
+              <button type="button" onclick="selectQuickImage('salgado_festa_mista.jpg')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold">🥐 Salgados Mix</button>
+              <button type="button" onclick="selectQuickImage('salgado_mini_tortinhas.jpg')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold">🥧 Mini Tortinhas</button>
               <button type="button" onclick="selectQuickImage('doce_mini_tortinhas.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Minitortinhas</button>
               <button type="button" onclick="selectQuickImage('doce_cascone.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Cascone</button>
               <button type="button" onclick="selectQuickImage('doce_bolo_chocolatudo.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Bolo Chocolatudo</button>
               <button type="button" onclick="selectQuickImage('doce_caixinha_premium.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Caixa Premium</button>
-              <button type="button" onclick="selectQuickImage('cardapio.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🥐 Salgados Banner</button>
+              <button type="button" onclick="selectQuickImage('cardapio.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">📜 Banner Cardápio</button>
             </div>
           </div>
 
@@ -1050,12 +1073,30 @@
       if (!cachedProducts || !cachedProducts.length) {
         cachedProducts = defaults;
       }
-      // Migração automática para Mini Tortinhas -> categoria salgados e fotos dos Kits de Decoração
+      // Migração automática para Salgados Reais, Mini Tortinhas e fotos dos Kits de Decoração
       let changed = false;
       cachedProducts.forEach(p => {
-        if (p.id === 'doce-tortinhas' && p.category === 'doces') {
-          p.category = 'salgados';
+        if (p.id === 'salgado-1' && (p.image === 'cardapio.jpg' || !p.image || p.image.includes('cardapio'))) {
+          p.image = 'salgado_cento_fritos.jpg';
           changed = true;
+        }
+        if (p.id === 'salgado-2' && (p.image === 'cardapio.jpg' || !p.image || p.image.includes('cardapio'))) {
+          p.image = 'salgado_assados_folhados.jpg';
+          changed = true;
+        }
+        if (p.id === 'salgado-3' && (p.image === 'cardapio.jpg' || !p.image || p.image.includes('cardapio'))) {
+          p.image = 'salgado_festa_mista.jpg';
+          changed = true;
+        }
+        if (p.id === 'doce-tortinhas') {
+          if (p.category === 'doces') {
+            p.category = 'salgados';
+            changed = true;
+          }
+          if (p.image === 'doce_mini_tortinhas.jpg' || p.image === 'cardapio.jpg' || !p.image) {
+            p.image = 'salgado_mini_tortinhas.jpg';
+            changed = true;
+          }
         }
         if (p.id === 'decor-kit-p' && p.image !== 'decor_kit_p.jpg') {
           p.image = 'decor_kit_p.jpg';
@@ -1068,6 +1109,7 @@
       });
       if (changed) {
         try {
+          localStorage.setItem('kau_catalog_version', '20261004_v2');
           localStorage.setItem('kau_products', JSON.stringify(cachedProducts));
           if (window.KauFirebase && typeof window.KauFirebase.saveProducts === 'function') {
             window.KauFirebase.saveProducts(cachedProducts).catch(() => {});
@@ -1505,6 +1547,34 @@
       link.download = `kau-festas-backup-${new Date().toISOString().slice(0,10)}.json`;
       link.click();
       showToast('Backup exportado com sucesso!', 'success');
+    }
+
+    function exportCatalogDefaultsJS() {
+      const timestamp = Date.now();
+      const code = `/**
+ * =========================================================================
+ * KAU FESTAS - CATÁLOGO E CONFIGURAÇÕES PADRÃO OFICIAIS
+ * =========================================================================
+ * Gerado automaticamente via Painel Admin em: ${new Date().toLocaleString('pt-BR')}
+ * =========================================================================
+ */
+
+(function(window) {
+  'use strict';
+
+  window.KAU_CATALOG_VERSION = 'v_${timestamp}';
+
+  window.KAU_DEFAULT_PRODUCTS = ${JSON.stringify(cachedProducts, null, 2)};
+
+  window.KAU_DEFAULT_SETTINGS = ${JSON.stringify(JSON.parse(localStorage.getItem('kau_site_settings') || '{}'), null, 2)};
+})(typeof window !== 'undefined' ? window : this);
+`;
+      const blob = new Blob([code], { type: 'application/javascript;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'catalog-defaults.js';
+      link.click();
+      showToast('Arquivo catalog-defaults.js pronto para publicação!', 'success');
     }
 
     function importBackupJSON(e) {

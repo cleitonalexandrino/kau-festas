@@ -28,8 +28,17 @@
   let storage = null;
   let auth = null;
 
+  // Configuração global compartilhada do Firebase (acessível para todos os celulares e visitantes na web)
+  // Caso deseje conectar a nuvem para todos os celulares sem precisar digitar em cada um, preencha este objeto abaixo:
+  window.KAU_FIREBASE_DEFAULT_CONFIG = window.KAU_FIREBASE_DEFAULT_CONFIG || null;
+
   // Recupera as configurações salvas do Firebase
   function getFirebaseConfig() {
+    // 1. Configuração global compartilhada no código (funciona para qualquer celular ou visitante)
+    if (window.KAU_FIREBASE_DEFAULT_CONFIG && window.KAU_FIREBASE_DEFAULT_CONFIG.apiKey && window.KAU_FIREBASE_DEFAULT_CONFIG.projectId) {
+      return window.KAU_FIREBASE_DEFAULT_CONFIG;
+    }
+    // 2. Configuração local deste navegador (LocalStorage)
     try {
       const data = localStorage.getItem(STORAGE_KEY_CONFIG);
       if (data) {
