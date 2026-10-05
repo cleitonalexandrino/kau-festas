@@ -29,8 +29,14 @@
   let auth = null;
 
   // Configuração global compartilhada do Firebase (acessível para todos os celulares e visitantes na web)
-  // Caso deseje conectar a nuvem para todos os celulares sem precisar digitar em cada um, preencha este objeto abaixo:
-  window.KAU_FIREBASE_DEFAULT_CONFIG = window.KAU_FIREBASE_DEFAULT_CONFIG || null;
+  window.KAU_FIREBASE_DEFAULT_CONFIG = {
+    apiKey: "AIzaSyDLRIR-vedVdIuEobkbJS_sY2oscmivZKM",
+    authDomain: "kau-festas.firebaseapp.com",
+    projectId: "kau-festas",
+    storageBucket: "kau-festas.firebasestorage.app",
+    messagingSenderId: "872637842435",
+    appId: "1:872637842435:web:0767c1d92ad1f518d5fa36"
+  };
 
   // Recupera as configurações salvas do Firebase
   function getFirebaseConfig() {
