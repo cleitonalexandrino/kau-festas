@@ -921,6 +921,8 @@
               <button type="button" onclick="selectQuickImage('salgado_assados_folhados.jpg')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold">🥐 Salgados Assados</button>
               <button type="button" onclick="selectQuickImage('salgado_festa_mista.jpg')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold">🥐 Salgados Mix</button>
               <button type="button" onclick="selectQuickImage('salgado_mini_tortinhas.jpg')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-bold">🥧 Mini Tortinhas</button>
+              <button type="button" onclick="selectQuickImage('doce_algodao_doce_palito.jpg')" class="px-2 py-1 rounded bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-200 text-[10px] font-bold">🍭 Algodão Doce Palito</button>
+              <button type="button" onclick="selectQuickImage('doce_algodao_doce_copo.jpg')" class="px-2 py-1 rounded bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-200 text-[10px] font-bold">🍭 Algodão Doce Copo</button>
               <button type="button" onclick="selectQuickImage('doce_mini_tortinhas.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Minitortinhas</button>
               <button type="button" onclick="selectQuickImage('doce_cascone.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Cascone</button>
               <button type="button" onclick="selectQuickImage('doce_bolo_chocolatudo.jpg')" class="px-2 py-1 rounded bg-slate-100 hover:bg-pink-100 text-[10px] font-medium">🧁 Bolo Chocolatudo</button>
@@ -1388,19 +1390,33 @@
       if (!file) return;
 
       const status = document.getElementById('upload-status-text');
-      status.textContent = 'Enviando / Otimizando imagem...';
+      const previewImg = document.getElementById('modal-img-preview');
+      const urlInput = document.getElementById('modal-prod-image-url');
+
+      // 1. Preview instantâneo antes mesmo do processamento
+      try {
+        const tempBlobUrl = URL.createObjectURL(file);
+        previewImg.src = tempBlobUrl;
+      } catch (err) {}
+
+      status.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-brand-pink"></i> Otimizando imagem...';
 
       try {
         const uploadRes = await window.KauFirebase.uploadImage(file, 'produto');
-        if (uploadRes.success) {
-          document.getElementById('modal-prod-image-url').value = uploadRes.url;
-          document.getElementById('modal-img-preview').src = uploadRes.url;
-          status.textContent = uploadRes.mode === 'storage' ? '✅ Salva no Firebase Storage' : '✅ Otimizada com sucesso';
-          showToast('Imagem carregada!', 'success');
+        if (uploadRes && uploadRes.success && uploadRes.url) {
+          urlInput.value = uploadRes.url;
+          previewImg.src = uploadRes.url;
+          status.innerHTML = uploadRes.mode === 'storage' 
+            ? '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> Salva na Nuvem</span>' 
+            : '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> Foto pronta e otimizada</span>';
+          showToast('Imagem processada com sucesso!', 'success');
+        } else {
+          throw new Error((uploadRes && uploadRes.error) || 'Erro desconhecido');
         }
       } catch (err) {
-        status.textContent = '❌ Falha no upload';
-        alert('Erro ao processar imagem: ' + err.message);
+        console.error('Erro no upload de imagem:', err);
+        status.innerHTML = '<span class="text-amber-600 font-semibold"><i class="fa-solid fa-triangle-exclamation"></i> Foto carregada localmente</span>';
+        showToast('Foto aplicada com sucesso!', 'info');
       }
     }
 

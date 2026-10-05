@@ -246,36 +246,20 @@
       return { success: true, mode: 'local_only' };
     },
 
-    // Upload de imagem: Se o Firebase Storage estiver ativo, envia para a nuvem e retorna URL pública.
-    // Caso contrário, comprime para Base64 WebP/JPEG otimizada para armazenamento local seguro.
+    // Upload de imagem ultra-resiliente: Comprime instantaneamente no navegador (Canvas) e tenta enviar para o Firebase Storage com timeout seguro de 3.5s.
+    // Se o Storage demorar ou não tiver permissão, usa a imagem otimizada em Base64 gravando direto no Firestore.
     uploadImage: async function(file, filenamePrefix = 'produto') {
-      if (isFirebaseConfigured() && (!firebaseInitialized || !storage)) {
-        initFirebase();
-      }
+      if (!file) return { success: false, error: 'Nenhum arquivo enviado' };
 
-      // Se temos Firebase Storage ativo
-      if (storage) {
-        try {
-          const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-          const fullPath = `catalog/${filenamePrefix}_${Date.now()}_${cleanName}`;
-          const storageRef = storage.ref().child(fullPath);
-          const uploadTask = await storageRef.put(file);
-          const downloadUrl = await uploadTask.ref.getDownloadURL();
-          return { success: true, url: downloadUrl, mode: 'storage' };
-        } catch (err) {
-          console.warn('Erro ao fazer upload no Firebase Storage, fazendo fallback para Base64:', err);
-        }
-      }
-
-      // Fallback: Converte imagem para Base64 otimizada com canvas
-      return new Promise((resolve, reject) => {
+      // 1. Otimização e compressão client-side via Canvas
+      const compressPromise = new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = function(evt) {
           const img = new Image();
           img.onload = function() {
             try {
               const canvas = document.createElement('canvas');
-              const maxDim = 900;
+              const maxDim = 850;
               let width = img.width;
               let height = img.height;
 
@@ -294,18 +278,60 @@
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0, width, height);
 
-              const base64Data = canvas.toDataURL('image/jpeg', 0.85);
-              resolve({ success: true, url: base64Data, mode: 'base64' });
-            } catch (canvasErr) {
-              resolve({ success: true, url: evt.target.result, mode: 'base64_raw' });
+              const base64Data = canvas.toDataURL('image/jpeg', 0.82);
+              canvas.toBlob((blob) => {
+                resolve({ base64: base64Data, blob: blob || file });
+              }, 'image/jpeg', 0.82);
+            } catch (err) {
+              resolve({ base64: evt.target.result, blob: file });
             }
           };
-          img.onerror = () => resolve({ success: true, url: evt.target.result, mode: 'base64_raw' });
+          img.onerror = () => resolve({ base64: evt.target.result, blob: file });
           img.src = evt.target.result;
         };
-        reader.onerror = (e) => reject(e);
+        reader.onerror = () => resolve({ base64: null, blob: file });
         reader.readAsDataURL(file);
       });
+
+      const { base64, blob } = await compressPromise;
+
+      // 2. Se Firebase estiver configurado e tiver storage, tenta upload no Cloud Storage com timeout de 3.5s
+      if (isFirebaseConfigured() && (!firebaseInitialized || !storage)) {
+        initFirebase();
+      }
+
+      if (storage && blob) {
+        try {
+          const cleanName = (file.name || 'foto.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
+          const fullPath = `catalog/${filenamePrefix}_${Date.now()}_${cleanName}`;
+          const storageRef = storage.ref().child(fullPath);
+
+          const uploadWithTimeout = new Promise(async (resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error('Storage timeout (3.5s)')), 3500);
+            try {
+              const snap = await storageRef.put(blob, { contentType: 'image/jpeg' });
+              const url = await snap.ref.getDownloadURL();
+              clearTimeout(timer);
+              resolve(url);
+            } catch (e) {
+              clearTimeout(timer);
+              reject(e);
+            }
+          });
+
+          const cloudUrl = await uploadWithTimeout;
+          return { success: true, url: cloudUrl, mode: 'storage' };
+        } catch (storageErr) {
+          console.info('Firebase Storage indisponível ou demorado, usando imagem compactada em alta qualidade:', storageErr);
+        }
+      }
+
+      // 3. Fallback imediato para Base64 otimizada (gravada direto no Firestore / LocalStorage)
+      if (base64) {
+        return { success: true, url: base64, mode: 'base64' };
+      }
+
+      return { success: false, error: 'Falha ao processar arquivo de imagem' };
     },
 
     // Autenticação de Admin (Firebase Auth com fallback local)
